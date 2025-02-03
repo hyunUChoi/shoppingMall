@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+    <nav aria-label="Page navigation" th:fragment="paging(resultList)">
+        <ul class="pagination cursor_pointer">
+            <li class="page-item prev">
+                <a class="page-link" th:if="${resultList.hasPrevious()}" th:onclick="'fnPaging(' + ${resultList.number - 1} + ')'">
+                    <i class="tf-icon bx bx-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item" th:if="${not #lists.isEmpty(resultList.content)}" th:each="i : ${#numbers.sequence(1, resultList.totalPages)}" th:classappend="${i == resultList.number + 1} ? 'active' : ''">
+                <a class="page-link" th:text="${i}" th:onclick="'fnPaging(' + ${i - 1} + ')'"></a>
+            </li>
+            <li class="page-item next">
+                <a class="page-link" th:if="${resultList.hasNext()}" th:onclick="'fnPaging(' + ${resultList.number + 1} + ')'">
+                    <i class="tf-icon bx bx-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script src="/common/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chw.shopping.dao.oracle.MaUserDAO">
+
+    <sql id="where">
+        <if test="search1 != null and search1 != ''">
+            AND AUTH = #{search1}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            <choose>
+                <when test="searchOption == 0">
+                    AND (USER_ID LIKE '%' || #{searchKeyword} || '%' OR USER_NM LIKE '%' || #{searchKeyword} || '%')
+                </when>
+                <when test="searchOption == 1">
+                    AND USER_ID LIKE '%' || #{searchKeyword} || '%'
+                </when>
+                <when test="searchOption == 2">
+                    AND USER_NM LIKE '%' || #{searchKeyword} || '%'
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="selectList" parameterType="maUserVO" resultType="maUserVO">
+        /* MaUserDAO.selectList */
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS RNUM
+                 , PA.*
+            FROM (
+                SELECT SEQ
+                     , REG_ID
+                     , REG_DT
+                     , USER_ID
+                     , USER_NM
+                     , USER_EMAIL
+                     , AUTH
+                FROM T_USER
+                WHERE DEL_YN = 'N'
+                <include refid="where"/>
+                ORDER BY SEQ DESC
+            ) PA
+            WHERE ROWNUM <![CDATA[ <= ]]> #{lastPageNo}
+        )
+        WHERE RNUM <![CDATA[ >= ]]> #{firstPageNo}
+    </select>
+
+    <select id="selectCount" parameterType="maUserVO" resultType="int">
+        /* MaUserDAO.selectCount */
+        SELECT count(1)
+        FROM T_USER
+        WHERE DEL_YN = 'N'
+        <include refid="where"/>
+    </select>
+
+    <select id="countByUserId" parameterType="maUserVO" resultType="int">
+        /* MaUserDAO.countByUserId */
+        SELECT COUNT(1)
+        FROM T_USER
+        WHERE USER_ID = #{userId}
+        AND SEQ != #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <select id="selectContents" parameterType="maUserVO" resultType="maUserVO">
+        /* MaUserDAO.selectContents */
+        SELECT SEQ
+             , USER_ID
+             , USER_PW
+             , USER_NM
+             , USER_EMAIL
+             , USER_TEL
+             , USER_POST
+             , USER_ADDR
+             , USER_ADDR_DETAIL
+             , MRK_YN
+             , AUTH
+        FROM T_USER
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <insert id="insertContents" parameterType="maUserVO">
+        /* MaUserDAO.insertContents */
+        INSERT INTO T_USER (
+              SEQ
+            , REG_ID
+            , USER_ID
+            , USER_PW
+            , USER_NM
+            , USER_EMAIL
+            , USER_TEL
+            , USER_POST
+            , USER_ADDR
+            , USER_ADDR_DETAIL
+            , MRK_YN
+            , AUTH
+        ) VALUES (
+              T_USER_SEQ.NEXTVAL
+            , #{loginId}
+            , #{userId}
+            , #{userPw}
+            , #{userNm}
+            , #{userEmail}
+            , #{userTel}
+            , #{userPost}
+            , #{userAddr}
+            , #{userAddrDetail}
+            , #{mrkYn}
+            , #{auth}
+        )
+    </insert>
+
+    <update id="updateContents" parameterType="maUserVO">
+        /* MaUserDAO.updateContents */
+        UPDATE T_USER
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , USER_ID = #{userId}
+          , USER_NM = #{userNm}
+          , USER_EMAIL = #{userEmail}
+          , USER_TEL = #{userTel}
+          , USER_POST = #{userPost}
+          , USER_ADDR = #{userAddr}
+          , USER_ADDR_DETAIL = #{userAddrDetail}
+          , MRK_YN = #{mrkYn}
+          , AUTH = #{auth}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <update id="passwordUpdateContents" parameterType="maUserVO">
+        /* MaUserDAO.passwordUpdateContents */
+        UPDATE T_USER
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , USER_ID = #{userId}
+          , USER_PW = #{userPw}
+          , USER_NM = #{userNm}
+          , USER_EMAIL = #{userEmail}
+          , USER_TEL = #{userTel}
+          , USER_POST = #{userPost}
+          , USER_ADDR = #{userAddr}
+          , USER_ADDR_DETAIL = #{userAddrDetail}
+          , MRK_YN = #{mrkYn}
+          , AUTH = #{auth}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <delete id="deleteContents" parameterType="maUserVO">
+        /* MaUserDAO.deleteContents */
+        UPDATE T_USER
+        SET DEL_YN = 'Y'
+          , MOD_DT = SYSDATE
+          , MOD_ID = #{loginId}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </delete>
+
+    <select id="selectByUserId" parameterType="maUserVO" resultType="maUserVO">
+        /* MaUserDAO.selectByUserId */
+        SELECT USER_ID
+             , USER_PW
+             , AUTH
+        FROM T_USER
+        WHERE USER_ID = #{userId}
+          AND DEL_YN = 'N'
+    </select>
+
+</mapper>

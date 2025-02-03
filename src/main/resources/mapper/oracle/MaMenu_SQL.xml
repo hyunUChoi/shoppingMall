@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chw.shopping.dao.oracle.MaMenuDAO">
+
+    <sql id="where">
+        <if test="search1 != null and search1 != ''">
+            AND MENU_DIVN = #{search1}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            <choose>
+                <when test="searchOption == 0">
+                    AND (MENU_NM LIKE '%' || #{searchKeyword} || '%' OR MENU_CD LIKE '%' || #{searchKeyword} || '%')
+                </when>
+                <when test="searchOption == 1">
+                    AND MENU_NM LIKE '%' || #{searchKeyword} || '%'
+                </when>
+                <when test="searchOption == 2">
+                    AND MENU_CD LIKE '%' || #{searchKeyword} || '%'
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="selectList" parameterType="maMenuVO" resultType="maMenuVO">
+        /* MaMenuDAO.selectList */
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS RNUM
+                 , PA.*
+            FROM (
+                SELECT SEQ
+                     , REG_ID
+                     , REG_DT
+                     , MENU_DIVN
+                     , MENU_NM
+                     , MENU_CD
+                     , MENU_URL
+                     , MENU_ORD
+                     , MENU_LEVEL
+                FROM T_MENU
+                WHERE DEL_YN = 'N'
+                AND MENU_LEVEL = 0
+                <include refid="where"/>
+                ORDER BY MENU_ORD, SEQ DESC
+            ) PA
+            WHERE ROWNUM <![CDATA[ <= ]]> #{lastPageNo}
+        )
+        WHERE RNUM <![CDATA[ >= ]]> #{firstPageNo}
+    </select>
+
+    <select id="selectListByMenuCd" parameterType="maMenuVO" resultType="maMenuVO">
+        /* MaMenuDAO.selectListByMenuCd */
+        SELECT SEQ
+             , REG_ID
+             , REG_DT
+             , MENU_DIVN
+             , MENU_NM
+             , MENU_CD
+             , MENU_URL
+             , MENU_ORD
+             , (SELECT MENU_NM FROM T_MENU WHERE MENU_CD = #{menuCd} AND DEL_YN = 'N') UPPER_NM
+             , UPPER_CD
+             , MENU_LEVEL
+        FROM T_MENU
+        WHERE DEL_YN = 'N'
+        AND UPPER_CD = #{menuCd}
+        ORDER BY MENU_ORD DESC
+    </select>
+
+    <select id="selectCount" parameterType="maMenuVO" resultType="int">
+        /* MaMenuDAO.selectCount */
+        SELECT count(1)
+        FROM T_MENU
+        WHERE DEL_YN = 'N'
+        AND MENU_LEVEL = 0
+        <include refid="where"/>
+    </select>
+
+    <select id="countByMenuCd" parameterType="maMenuVO" resultType="int">
+        /* MaMenuDAO.countByMenuCd */
+        SELECT COUNT(1)
+        FROM T_MENU
+        WHERE UPPER(MENU_CD) = UPPER(#{menuCd})
+        AND SEQ != #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <select id="selectContents" parameterType="maMenuVO" resultType="maMenuVO">
+        /* MaMenuDAO.selectContents */
+        SELECT SEQ
+             , MENU_DIVN
+             , MENU_CD
+             , UPPER_CD
+             , MENU_ORD
+             , MENU_NM
+             , MENU_URL
+             , MENU_DSCR
+             , MENU_LEVEL
+             , (SELECT MENU_NM FROM T_MENU WHERE MENU_CD = A.UPPER_CD AND DEL_YN = 'N') UPPER_NM
+        FROM T_MENU A
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <insert id="insertContents" parameterType="maMenuVO">
+        /* MaMenuDAO.insertContents */
+        INSERT INTO T_MENU (
+              SEQ
+            , REG_ID
+            , MENU_DIVN
+            , MENU_NM
+            , MENU_URL
+            , MENU_CD
+            , UPPER_CD
+            , MENU_ORD
+            , MENU_DSCR
+            , MENU_LEVEL
+        ) VALUES (
+              T_MENU_SEQ.NEXTVAL
+            , #{loginId}
+            , #{menuDivn}
+            , #{menuNm}
+            , #{menuUrl}
+            , #{menuCd}
+            , #{upperCd}
+            , #{menuOrd}
+            , #{menuDscr}
+            , #{menuLevel}
+        )
+    </insert>
+
+    <update id="updateContents" parameterType="maMenuVO">
+        /* MaMenuDAO.updateContents */
+        UPDATE T_MENU
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , MENU_DIVN = #{menuDivn}
+          , MENU_NM = #{menuNm}
+          , MENU_URL = #{menuUrl}
+          , MENU_CD = #{menuCd}
+          , MENU_ORD = #{menuOrd}
+          , MENU_DSCR = #{menuDscr}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <update id="updateLowerContents" parameterType="maMenuVO">
+        /* MaMenuDAO.updateLowerContents */
+        UPDATE T_MENU
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , UPPER_CD = #{menuCd}
+        WHERE UPPER_CD = #{upperCd}
+          AND UPPER_CD IS NOT NULL
+          AND DEL_YN = 'N'
+    </update>
+
+    <delete id="deleteContents" parameterType="maMenuVO">
+        /* MaMenuDAO.deleteContents */
+        UPDATE T_MENU
+        SET DEL_YN = 'Y'
+          , MOD_DT = SYSDATE
+          , MOD_ID = #{loginId}
+        WHERE MENU_CD IN (
+            SELECT MENU_CD
+            FROM T_MENU
+            START WITH MENU_CD = #{menuCd}
+            CONNECT BY PRIOR MENU_CD = UPPER_CD
+        )
+    </delete>
+
+    <select id="selectMenuList" parameterType="maMenuVO" resultType="maMenuVO">
+        /* MaMenuDAO.selectMenuList */
+        SELECT MENU_NM
+             , MENU_CD
+             , MENU_URL
+             , MENU_DIVN
+             , MENU_ORD
+             , UPPER_CD
+        FROM T_MENU
+        WHERE MENU_DIVN = #{menuDivn}
+        <choose>
+            <when test="upperCd != null and upperCd != ''">
+                AND UPPER_CD = #{upperCd}
+            </when>
+            <otherwise>
+                AND UPPER_CD IS NULL
+            </otherwise>
+        </choose>
+        AND DEL_YN = 'N'
+        ORDER BY MENU_ORD
+    </select>
+
+</mapper>

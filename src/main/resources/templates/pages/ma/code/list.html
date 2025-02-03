@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+        let overlap = false;
+
+        // 중복검사
+        document.getElementById('btn_overlap').onclick = function() {
+            axios.get('countByCode', {
+                params: {
+                    code: document.getElementById('code').value,
+                    seq: document.getElementById('seq').value
+                }
+            })
+            .then(function() {
+                overlap = true;
+                alert("사용 가능한 코드입니다.");
+            })
+            .catch(function() {
+                alert("이미 사용중인 코드입니다.");
+            })
+        };
+
+        // 재입력 또는 수정 시 코드 중복검사 재실시
+        document.getElementById('code').oninput = function() {
+            overlap = false;
+        };
+
+        document.getElementById('btn_submit').onclick = function() {
+            let btn = this.id;
+            document.querySelectorAll('[id^="error_"]').forEach(ele => ele.innerText = "");
+
+            if(overlap) {
+                let method = this.innerText === '등록' ? 'post' : 'put';
+                let url = this.innerText === '등록' ? 'insertProc' : 'updateProc';
+
+                document.getElementById(btn).classList.add('display_none');
+                axios({
+                    method: method,
+                    url: url,
+                    data: document.getElementById('defaultFrm')
+                })
+                .then(function(res) {
+                    fnReset();
+                    console.log(res)
+                    alert(res.data.message);
+                    fnPageCall('list', res.data.return);
+                })
+                .catch(function(err) {
+                    if(err.response && err.response.status === 422) {
+                        const errors = err.response.data;
+                        for(const key in errors) {
+                            document.getElementById("error_" + key).innerText = errors[key];
+                        }
+                    }
+                    document.getElementById(btn).classList.remove('display_none');
+                })
+            } else {
+                alert("코드 중복검사를 재실시 해주세요.");
+            }
+        };
+
+        document.getElementById('btn_delete').onclick = function() {
+            if(confirm("삭제하시겠습니까?")) {
+                fnProcessing('delete', 'deleteProc', this);
+                fnReset();
+            }
+        };
+
+        document.getElementById('btn_search').onclick = function() {
+            fnPageCall('list', 'list');
+        };
+
+        document.addEventListener('keydown', function(e) {
+           if(e.keyCode === 13){
+               fnPageCall('list', 'list');
+           }
+        });
+    });
+
+    // 메뉴 상세정보 바인딩
+    // noinspection JSUnusedGlobalSymbols
+    function fnShowDetail(seq, level) {
+        fnReset();
+        axios.get('selectContents?seq=' + seq)
+        .then(function(response) {
+            const data = response.data;
+
+            document.getElementById('seq').value = seq;
+            document.getElementById('code').value = data.code;
+            document.getElementById('cdNm').value = data.cdNm;
+            document.getElementById('cdOrd').value = data.cdOrd;
+            document.getElementById('cdDscr').value = data.cdDscr;
+            document.getElementById('btn_submit').innerText = '수정';
+            document.getElementById('btn_delete').classList.remove('display_none');
+
+            fnHideLowerMenu(data.code, data.upperCd);
+            fnShowLowerMenu(data.code, level, data.cdNm);
+
+            if(level > 0) {
+                document.getElementById('upperDiv').classList.remove('display_none');
+                document.getElementById('upper').value = data.upperNm;
+            }
+        })
+        .catch(function(error) {
+            console.log(error)
+        })
+    }
+
+    // 상위코드 정보 바인딩
+    // noinspection JSUnusedGlobalSymbols
+    function fnSetCode(code, menuNm, level) {
+        fnReset();
+        document.getElementById('upperCd').value = code;
+        document.getElementById('upperDiv').classList.remove('display_none');
+        document.getElementById('upper').value = menuNm;
+        document.getElementById('cdLevel').value = Number(level) + 1;
+    }
+
+    // 하위코드 목록 출력
+    function fnShowLowerMenu(code, level) {
+        axios.get('selectCodeList?code=' + code)
+        .then(function(response) {
+            let codeList = response.data;
+
+            if(codeList.length > 0) {
+                let align = level === 0 ? 'text_align_center' : 'text_align_right'
+                codeList.forEach(item => {
+                    let html = '';
+                    html +=     '<td class="'+ align +'" onclick="fnShowDetail(\'' + item.seq + '\', \'' + item.cdLevel + '\')">' +'ㄴ '+ item.code + '</td>';
+                    html +=     '<td><span class="text-truncate" onclick="fnShowDetail(\'' + item.seq + '\', \'' + item.cdLevel + '\')">' + item.cdNm + '</span></td>';
+                    html +=     '<td class="text_align_center" onclick="fnShowDetail(\'' + item.seq + '\', \'' + item.cdLevel + '\')">' + item.cdOrd + '</td>';
+                    if(level === 0) {
+                        html += '<td class="text_align_center" onclick="fnSetCode(\'' + item.code+ '\', \'' + item.cdNm + '\', \'' + item.cdLevel + '\')"><span><i class="bx bx-plus"></i></span></td>';
+                    } else {
+                        html += '<td class="text_align_center"></td>';
+                    }
+
+                    const new_tr = document.createElement('tr');
+                    new_tr.id = item.code;
+                    new_tr.classList.add(code);
+                    new_tr.classList.add('text-body');
+                    new_tr.innerHTML = html;
+                    document.getElementById(code).after(new_tr);
+                });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+    }
+
+    // 코드 목록 삭제
+    function fnHideLowerMenu(code, upperCd) {
+        if(upperCd === null) {
+            document.querySelectorAll('tbody tr:not(.level0)').forEach(el => {
+                el.remove();
+            })
+        } else {
+            document.querySelectorAll('.' + code).forEach(el => {
+                el.remove();
+            })
+        }
+    }
+
+    // 초기화
+    function fnReset() {
+        document.querySelectorAll('[id^="error_"]').forEach(ele => ele.innerText = "");
+
+        document.getElementById('seq').value = 0;
+        document.getElementById('upperCd').value = '';
+        document.getElementById('cdLevel').value = 0;
+        document.getElementById('code').value = '';
+        document.getElementById('cdNm').value = '';
+        document.getElementById('cdOrd').value = '0';
+        document.getElementById('cdDscr').value = '';
+        document.getElementById('btn_submit').innerText = '등록';
+        document.getElementById('btn_delete').classList.add('display_none');
+        document.getElementById('upperDiv').classList.add('display_none');
+    }
+</script>
+<h4 class="fw-bold py-3 mb-4">메뉴관리</h4>
+<div>
+    <form id="defaultFrm" th:object="${searchVO}" method="post" onsubmit="return false;">
+        <input type="hidden" th:field="*{seq}"/>
+        <input type="hidden" th:field="*{upperCd}"/>
+        <input type="hidden" th:field="*{cdLevel}"/>
+        <div class="card width_100p display_inline_block bottom_1rem">
+            <div class="card-header">
+                <small class="fw-medium d-block">검색</small>
+                <div class="row" style="margin-top: 1rem !important;">
+                    <div class="input-group" style="width: 75% !important; align-items: center !important;">
+                        <div class="col-md-1">
+                            <select class="form-select" th:field="*{searchOption}" title="검색조건" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <option value="0" selected>전체</option>
+                                <option value="1">코드</option>
+                                <option value="2">코드명</option>
+                            </select>
+                        </div>
+                        <input type="text" th:field="*{searchKeyword}" class="form-control" title="검색어"/>
+                        <button class="btn btn-outline-primary" type="button" id="btn_search">검색</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card width_60p display_inline_block margin_right_3p">
+                <div class="card-header">
+                    <table class="datatables-users table border-top dataTable no-footer dtr-column">
+                        <colgroup>
+                            <col class="width_20p">
+                            <col class="width_55p">
+                            <col class="width_10p">
+                            <col class="width_15p">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="text_align_center">코드</th>
+                                <th class="text_align_center">코드명</th>
+                                <th class="text_align_center">순서</th>
+                                <th class="text_align_center">하위추가</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <th:block th:if="${not #lists.isEmpty(resultList.content)}">
+                                <tr th:each="result : ${resultList}" class="text-body level0" th:id="${result.code}">
+                                    <td class="text_align_left" th:text="${result.code}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.cdLevel} +')'"></td>
+                                    <td><span class="text-truncate" th:text="${result.cdNm}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.cdLevel} +')'"></span></td>
+                                    <td class="text_align_center" th:text="${result.cdOrd}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.cdLevel} +')'"></td>
+                                    <td class="text_align_center" th:onclick="fnSetCode([[${result.code}]], [[${result.cdNm}]], [[${result.cdLevel}]])"><span><i class="bx bx-plus"></i></span></td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${not #lists.isEmpty(resultList.content)}">
+                                <tr>
+                                    <td colspan="4" class="text_align_center">등록된 데이터가 없습니다.</td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                    <div class="demo-inline-spacing">
+                        <th:block th:replace="common/fragments/paging :: paging(${resultList})"/>
+                    </div>
+                </div>
+            </div>
+            <div class="card width_30p display_inline_block position_absolute">
+                <div class="card-header">
+                    <div class="row">
+                        <div id="upperDiv" class="col-md-4 col-md-12 display_none">
+                            <label class="form-label" for="upper">상위코드</label>
+                            <input th:type="text" id="upper" class="form-control" th:disabled="true"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label">코드</label>
+                            <div id="code_box" class="input-group">
+                                <input th:type="text" class="form-control" th:field="*{code}" title="코드" th:maxlength="10"/>
+                                <button id="btn_overlap" class="btn btn-outline-primary" type="button">중복확인</button>
+                            </div>
+                            <div id="error_code" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label">코드명</label>
+                            <input th:type="text" class="form-control" th:field="*{cdNm}" th:maxlength="10" title="코드명"/>
+                            <div id="error_cdNm" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label">순서</label>
+                            <input th:type="number" class="form-control" th:field="*{cdOrd}" title="순서"/>
+                            <div id="error_cdOrd" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label" for="cdDscr">설명</label>
+                            <textarea class="form-control" id="cdDscr" th:field="*{cdDscr}" th:maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    <div class="text-end margin_top_20px">
+                        <button type="button" class="btn btn-outline-info" onclick="fnReset();">초기화</button>
+                        <button type="button" id="btn_submit" class="btn btn-outline-primary">등록</button>
+                        <button type="button" id="btn_delete" class="btn btn-outline-danger display_none">삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</html>

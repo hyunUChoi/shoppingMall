@@ -1,0 +1,44 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: shopping
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    check-template-location: true
+    mode: HTML
+    cache: false
+
+  datasource:
+    oracle:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@localhost:1522/xe
+      username: chw
+      password: qoraks12
+
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/dev
+      username: root
+      password: 1234
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
+
+mybatis:
+  oracle:
+    configuration:
+      map-underscore-to-camel-case: true
+
+  mysql:
+    configuration:
+      map-underscore-to-camel-case: true
+
+logging:
+  config: classpath:logback-spring.xml

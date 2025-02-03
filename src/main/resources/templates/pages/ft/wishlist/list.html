@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
+<script th:inline="javascript">
+	document.addEventListener('DOMContentLoaded', () => {
+		//fnPageCall('addList', 'addList');
+	});
+</script>
+<h4 class="fw-bold py-3 mb-4">MENU</h4>
+<div class="card">
+	<form id="defaultFrm" th:object="${searchVO}" method="post" onsubmit="return false;">
+		<div class="card-header">
+			<div class="d-flex justify-content-between align-items-center row py-3 gap-3 gap-md-0">
+				<div class="col-md-4">
+					<label class="form-label" for="search1">구분</label>
+					<select id="search1" class="form-select color-dropdown">
+						<option value="">전체</option>
+						<option value="ma">관리자</option>
+						<option value="ft">사용자</option>
+					</select>
+				</div>
+			</div>
+			<div class="input-group">
+				<div class="col-md-1">
+					<select class="form-select" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+						<option value="0" selected>전체</option>
+						<option value="1">메뉴명</option>
+						<option value="2">메뉴코드</option>
+					</select>
+				</div>
+				<input type="text" class="form-control"/>
+				<a class="btn btn-outline-primary">검색</a>
+			</div>
+		</div>
+	</form>
+	<div class="card-datatable table-responsive">
+		<div class="dataTables_wrapper dt-bootstrap5 no-footer">
+			<div id="tbl"></div>
+		</div>
+	</div>
+</div>
+</html>

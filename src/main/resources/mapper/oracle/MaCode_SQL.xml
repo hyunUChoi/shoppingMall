@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chw.shopping.dao.oracle.MaCodeDAO">
+
+    <sql id="where">
+        <if test="searchKeyword != null and searchKeyword != ''">
+            <choose>
+                <when test="searchOption == 0">
+                    AND (CODE LIKE '%' || #{searchKeyword} || '%' OR CD_NM LIKE '%' || #{searchKeyword} || '%')
+                </when>
+                <when test="searchOption == 1">
+                    AND CODE LIKE '%' || #{searchKeyword} || '%'
+                </when>
+                <when test="searchOption == 2">
+                    AND CD_NM LIKE '%' || #{searchKeyword} || '%'
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="selectList" parameterType="maCodeVO" resultType="maCodeVO">
+        /* MaCodeDAO.selectList */
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS RNUM
+                 , PA.*
+            FROM (
+                SELECT SEQ
+                     , REG_ID
+                     , REG_DT
+                     , CODE
+                     , CD_NM
+                     , UPPER_CD
+                     , CD_ORD
+                     , CD_LEVEL
+                FROM T_CODE
+                WHERE DEL_YN = 'N'
+                AND CD_LEVEL = 0
+                <include refid="where"/>
+                ORDER BY CD_ORD, SEQ DESC
+            ) PA
+            WHERE ROWNUM <![CDATA[ <= ]]> #{lastPageNo}
+        )
+        WHERE RNUM <![CDATA[ >= ]]> #{firstPageNo}
+    </select>
+
+    <select id="selectListByCode" parameterType="maCodeVO" resultType="maCodeVO">
+        /* MaCodeDAO.selectListByCode */
+        SELECT SEQ
+             , REG_ID
+             , REG_DT
+             , CODE
+             , CD_NM
+             , CD_ORD
+             , (SELECT CD_NM FROM T_CODE WHERE CODE = #{code} AND DEL_YN = 'N') UPPER_NM
+             , UPPER_CD
+             , CD_LEVEL
+        FROM T_CODE
+        WHERE DEL_YN = 'N'
+        AND UPPER_CD = #{code}
+        ORDER BY CD_ORD DESC
+    </select>
+
+    <select id="selectCount" parameterType="maCodeVO" resultType="int">
+        /* MaCodeDAO.selectCount */
+        SELECT count(1)
+        FROM T_CODE
+        WHERE DEL_YN = 'N'
+        AND CD_LEVEL = 0
+        <include refid="where"/>
+    </select>
+
+    <select id="countByCode" parameterType="maCodeVO" resultType="int">
+        /* MaCodeDAO.countByCode */
+        SELECT COUNT(1)
+        FROM T_CODE
+        WHERE UPPER(CODE) = UPPER(#{code})
+        AND SEQ != #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <select id="selectContents" parameterType="maCodeVO" resultType="maCodeVO">
+        /* MaCodeDAO.selectContents */
+        SELECT SEQ
+             , CODE
+             , CD_NM
+             , UPPER_CD
+             , CD_ORD
+             , CD_DSCR
+             , CD_LEVEL
+             , (SELECT CD_NM FROM T_CODE WHERE CODE = A.UPPER_CD AND DEL_YN = 'N') UPPER_NM
+        FROM T_CODE A
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <insert id="insertContents" parameterType="maCodeVO">
+        /* MaCodeDAO.insertContents */
+        INSERT INTO T_CODE (
+              SEQ
+            , REG_ID
+            , CODE
+            , CD_NM
+            , UPPER_CD
+            , CD_ORD
+            , CD_DSCR
+            , CD_LEVEL
+        ) VALUES (
+              T_CODE_SEQ.NEXTVAL
+            , #{loginId}
+            , #{code}
+            , #{cdNm}
+            , #{upperCd}
+            , #{cdOrd}
+            , #{cdDscr}
+            , #{cdLevel}
+        )
+    </insert>
+
+    <update id="updateContents" parameterType="maCodeVO">
+        /* MaCodeDAO.updateContents */
+        UPDATE T_CODE
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , CODE = #{code}
+          , CD_NM = #{cdNm}
+          , CD_ORD = #{cdOrd}
+          , CD_DSCR = #{cdDscr}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <update id="updateLowerContents" parameterType="maCodeVO">
+        /* MaCodeDAO.updateLowerContents */
+        UPDATE T_CODE
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , UPPER_CD = #{code}
+        WHERE UPPER_CD = #{upperCd}
+          AND UPPER_CD IS NOT NULL
+          AND DEL_YN = 'N'
+    </update>
+
+    <delete id="deleteContents" parameterType="maCodeVO">
+        /* MaCodeDAO.deleteContents */
+        UPDATE T_CODE
+        SET DEL_YN = 'Y'
+          , MOD_DT = SYSDATE
+          , MOD_ID = #{loginId}
+        WHERE CODE IN (
+            SELECT CODE
+            FROM T_CODE
+            START WITH CODE = #{code}
+            CONNECT BY PRIOR CODE = UPPER_CD
+        )
+    </delete>
+
+    <select id="codeMap" parameterType="String" resultType="maCodeVO">
+        /* MaCodeDAO.codeMap */
+        SELECT CODE
+             , CD_NM
+        FROM T_CODE
+        WHERE DEL_YN = 'N'
+          AND UPPER_CD = #{code}
+        ORDER BY CD_ORD
+    </select>
+
+</mapper>

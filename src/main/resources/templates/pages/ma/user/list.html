@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
+<script th:inline="javascript">
+	document.addEventListener('DOMContentLoaded', () => {
+		fnPageCall('addList', 'addList');
+
+		document.getElementById('btn_search').onclick = function() {
+			fnPageCall('addList', 'addList');
+		};
+
+		document.addEventListener('keydown', function(e) {
+			if(e.keyCode === 13) {
+				fnPageCall('addList', 'addList');
+			}
+		});
+	});
+</script>
+<h4 class="fw-bold py-3 mb-4">사용자관리</h4>
+<div class="card">
+	<form id="defaultFrm" th:object="${searchVO}" method="post" onsubmit="return false;">
+		<input type="hidden" th:field="*{seq}"/>
+		<input type="hidden" th:field="*{page}"/>
+		<div class="width_100p display_inline_block bottom_1rem">
+			<div class="card-header">
+				<small class="fw-medium d-block">검색</small>
+				<div class="row" style="margin-top: 1rem !important;">
+					<div class="col-md-2">
+						<select th:field="*{search1}" class="form-select color-dropdown" title="구분">
+							<option value="">전체</option>
+							<th:block th:each="code : ${codeMap}">
+								<option th:value="${code.key}" th:text="${code.value}"></option>
+							</th:block>
+						</select>
+					</div>
+					<div class="input-group"  style="width: 75% !important; align-items: center !important;">
+						<div class="col-md-1">
+							<select class="form-select" th:field="*{searchOption}" title="검색구분" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+								<option value="0" selected>전체</option>
+								<option value="1">아이디</option>
+								<option value="2">고객명</option>
+							</select>
+						</div>
+						<input type="text" th:field="*{searchKeyword}" title="검색어" class="form-control"/>
+						<a class="btn btn-outline-primary" id="btn_search">검색</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div class="card-datatable table-responsive">
+		<div class="dataTables_wrapper dt-bootstrap5 no-footer">
+			<div id="tbl"></div>
+		</div>
+	</div>
+</div>
+</html>

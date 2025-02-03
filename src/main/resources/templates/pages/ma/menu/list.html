@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+        let overlap = false;
+
+        // 중복검사
+        document.getElementById('btn_overlap').onclick = function() {
+            axios.get('countByMenuCd', {
+                params: {
+                    menuCd: document.getElementById('menuCd').value,
+                    seq: document.getElementById('seq').value
+                }
+            })
+            .then(function() {
+                overlap = true;
+                alert("사용 가능한 코드입니다.");
+            })
+            .catch(function() {
+                alert("이미 사용중인 코드입니다.");
+            })
+        };
+
+        // 재입력 또는 수정 시 코드 중복검사 재실시
+        document.getElementById('menuCd').oninput = function() {
+            overlap = false;
+        };
+
+        document.getElementById('btn_submit').onclick = function() {
+            let btn = this.id;
+            document.querySelectorAll('[id^="error_"]').forEach(ele => ele.innerText = "");
+
+            if(overlap) {
+                let method = this.innerText === '등록' ? 'post' : 'put';
+                let url = this.innerText === '등록' ? 'insertProc' : 'updateProc';
+
+                document.getElementById(btn).classList.add('display_none');
+                axios({
+                    method: method,
+                    url: url,
+                    data: document.getElementById('defaultFrm')
+                })
+                .then(function(res) {
+                    fnReset();
+                    alert(res.data.message);
+                    fnPageCall('list', res.data.return);
+                })
+                .catch(function(err) {
+                    if(err.response && err.response.status === 422) {
+                        const errors = err.response.data;
+                        for(const key in errors) {
+                            document.getElementById("error_" + key).innerText = errors[key];
+                        }
+                    }
+                    document.getElementById(btn).classList.remove('display_none');
+                })
+            } else {
+                alert("메뉴코드 중복검사를 재실시 해주세요.");
+            }
+        };
+
+        document.getElementById('btn_delete').onclick = function() {
+            if(confirm("삭제하시겠습니까?")) {
+                fnProcessing('delete', 'deleteProc', this);
+                fnReset();
+            }
+        };
+
+        document.getElementById('btn_search').onclick = function() {
+            fnPageCall('list', 'list');
+        };
+
+        document.addEventListener('keydown', function(e) {
+           if(e.keyCode === 13){
+               fnPageCall('list', 'list');
+           }
+        });
+    });
+
+    // 메뉴 상세정보 바인딩
+    // noinspection JSUnusedGlobalSymbols
+    function fnShowDetail(seq, level) {
+        fnReset();
+        axios.get('selectContents?seq=' + seq)
+        .then(function(response) {
+            const data = response.data;
+
+            document.getElementById('seq').value = seq;
+            document.getElementById('menuDivn').value = data.menuDivn;
+            document.getElementById('menuOrd').value = data.menuOrd;
+            document.getElementById('menuCd').value = data.menuCd;
+            document.getElementById('menuNm').value = data.menuNm;
+            document.getElementById('menuUrl').value = data.menuUrl;
+            document.getElementById('menuDscr').value = data.menuDscr;
+            document.getElementById('btn_submit').innerText = '수정';
+            document.getElementById('btn_delete').classList.remove('display_none');
+
+            fnHideLowerMenu(data.menuCd, data.upperCd);
+            fnShowLowerMenu(data.menuCd, level, data.menuNm);
+
+            if(level > 0) {
+                document.getElementById('upperDiv').classList.remove('display_none');
+                document.getElementById('upper').value = data.upperNm;
+            }
+        })
+        .catch(function(error) {
+            console.log(error)
+        })
+    }
+
+    // 상위코드 정보 바인딩
+    // noinspection JSUnusedGlobalSymbols
+    function fnSetCode(code, menuNm, level) {
+        fnReset();
+        document.getElementById('upperCd').value = code;
+        document.getElementById('upperDiv').classList.remove('display_none');
+        document.getElementById('upper').value = menuNm;
+        document.getElementById('menuLevel').value = Number(level) + 1;
+    }
+
+    // 하위코드 목록 출력
+    function fnShowLowerMenu(menuCd, level) {
+        axios.get('selectCodeList?menuCd=' + menuCd)
+        .then(function(response) {
+            let codeList = response.data;
+
+            if(codeList.length > 0) {
+                let align = level === 0 ? 'text_align_center' : 'text_align_right'
+                codeList.forEach(code => {
+                    let html = '';
+                    html +=     '<td class="'+ align +'" onclick="fnShowDetail(\'' + code.seq + '\', \'' + code.menuLevel + '\')">' +'ㄴ '+ (code.menuDivn === 'ma' ? '관리자' : code.menuDivn === 'ft' ? '사용자' : '사업자') + '</td>';
+                    html +=     '<td class="text_align_center" onclick="fnShowDetail(\'' + code.seq + '\', \'' + code.menuLevel + '\')">' + code.menuNm + '</td>';
+                    html +=     '<td class="text_align_center" onclick="fnShowDetail(\'' + code.seq + '\', \'' + code.menuLevel + '\')">' + code.menuCd + '</td>';
+                    html +=     '<td><span class="text-truncate" onclick="fnShowDetail(\'' + code.seq + '\', \'' + code.menuLevel + '\')">' + code.menuUrl + '</span></td>';
+                    html +=     '<td class="text_align_center" onclick="fnShowDetail(\'' + code.seq + '\', \'' + code.menuLevel + '\')">' + code.menuOrd + '</td>';
+                    if(level === 0) {
+                        html += '<td class="text_align_center" onclick="fnSetCode(\'' + code.menuCd + '\', \'' + code.menuNm + '\', \'' + code.menuLevel + '\')"><span><i class="bx bx-plus"></i></span></td>';
+                    } else {
+                        html += '<td class="text_align_center"></td>';
+                    }
+
+                    const new_tr = document.createElement('tr');
+                    new_tr.id = code.menuCd;
+                    new_tr.classList.add(menuCd);
+                    new_tr.classList.add('text-body');
+                    new_tr.innerHTML = html;
+                    document.getElementById(menuCd).after(new_tr);
+                });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+    }
+
+    // 코드 목록 삭제
+    function fnHideLowerMenu(menuCd, upperCd) {
+        if(upperCd === null) {
+            document.querySelectorAll('tbody tr:not(.level0)').forEach(el => {
+                el.remove();
+            })
+        } else {
+            document.querySelectorAll('.' + menuCd).forEach(el => {
+                el.remove();
+            })
+        }
+    }
+
+    // 초기화
+    function fnReset() {
+        document.querySelectorAll('[id^="error_"]').forEach(ele => ele.innerText = "");
+
+        document.getElementById('seq').value = 0;
+        document.getElementById('upperCd').value = '';
+        document.getElementById('menuLevel').value = 0;
+        document.getElementById('menuDivn').value = 'ft';
+        document.getElementById('menuOrd').value = '0';
+        document.getElementById('menuCd').value = '';
+        document.getElementById('menuNm').value = '';
+        document.getElementById('menuUrl').value = '';
+        document.getElementById('menuDscr').value = '';
+        document.getElementById('btn_submit').innerText = '등록';
+        document.getElementById('btn_delete').classList.add('display_none');
+        document.getElementById('upperDiv').classList.add('display_none');
+    }
+</script>
+<h4 class="fw-bold py-3 mb-4">메뉴관리</h4>
+<div>
+    <form id="defaultFrm" th:object="${searchVO}" method="post" onsubmit="return false;">
+        <input type="hidden" th:field="*{seq}"/>
+        <input type="hidden" th:field="*{upperCd}"/>
+        <input type="hidden" th:field="*{menuLevel}"/>
+        <div class="card width_100p display_inline_block bottom_1rem">
+            <div class="card-header">
+                <small class="fw-medium d-block">검색</small>
+                <div class="row" style="margin-top: 1rem !important;">
+                    <div class="col-md-2">
+                        <select th:field="*{search1}" title="구분" class="form-select color-dropdown">
+                            <option value="">전체</option>
+                            <th:block th:each="code : ${codeMap}">
+                                <option th:value="${code.key}" th:text="${code.value}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="input-group" style="width: 75% !important; align-items: center !important;">
+                        <div class="col-md-1">
+                            <select class="form-select" th:field="*{searchOption}" title="검색조건" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <option value="0" selected>전체</option>
+                                <option value="1">메뉴명</option>
+                                <option value="2">메뉴코드</option>
+                            </select>
+                        </div>
+                        <input type="text" th:field="*{searchKeyword}" class="form-control" title="검색어"/>
+                        <button class="btn btn-outline-primary" type="button" id="btn_search">검색</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card width_60p display_inline_block margin_right_3p">
+                <div class="card-header">
+                    <table class="datatables-users table border-top dataTable no-footer dtr-column">
+                        <colgroup>
+                            <col class="width_15p">
+                            <col class="width_15p">
+                            <col class="width_15p">
+                            <col class="width_30p">
+                            <col class="width_10p">
+                            <col class="width_15p">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="text_align_center">구분</th>
+                                <th class="text_align_center">메뉴명</th>
+                                <th class="text_align_center">메뉴코드</th>
+                                <th>URL</th>
+                                <th class="text_align_center">순서</th>
+                                <th class="text_align_center">하위추가</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <th:block th:if="${not #lists.isEmpty(resultList.content)}">
+                                <tr th:each="result : ${resultList}" class="text-body level0" th:id="${result.menuCd}">
+                                    <th:block th:each="code : ${codeMap}">
+                                        <td class="text_align_left" th:if="${result.menuDivn eq code.key}" th:text="${code.value}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.menuLevel} +')'"></td>
+                                    </th:block>
+                                    <td class="text_align_center" th:text="${result.menuNm}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.menuLevel} +')'"></td>
+                                    <td class="text_align_center" th:text="${result.menuCd}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.menuLevel} +')'"></td>
+                                    <td><span class="text-truncate" th:text="${result.menuUrl}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.menuLevel} +')'"></span></td>
+                                    <td class="text_align_center" th:text="${result.menuOrd}" th:onclick="'fnShowDetail(' + ${result.seq} + ', '+ ${result.menuLevel} +')'"></td>
+                                    <td class="text_align_center" th:onclick="fnSetCode([[${result.menuCd}]], [[${result.menuNm}]], [[${result.menuLevel}]])"><span><i class="bx bx-plus"></i></span></td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${not #lists.isEmpty(resultList)}">
+                                <tr>
+                                    <td colspan="6" class="text_align_center">등록된 데이터가 없습니다.</td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                    <div class="demo-inline-spacing">
+                        <th:block th:replace="common/fragments/paging :: paging(${resultList})"/>
+                    </div>
+                </div>
+            </div>
+            <div class="card width_30p display_inline_block position_absolute">
+                <div class="card-header">
+                    <div class="row">
+                        <div id="upperDiv" class="col-md-4 col-md-12 display_none">
+                            <label class="form-label" for="upper">상위메뉴</label>
+                            <input th:type="text" id="upper" class="form-control" th:disabled="true"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-6">
+                            <label class="form-label">구분</label>
+                            <select class="form-select" th:field="*{menuDivn}" title="구분">
+                                <th:block th:each="code : ${codeMap}">
+                                    <option th:value="${code.key}" th:text="${code.value}"></option>
+                                </th:block>
+                            </select>
+                            <div id="error_menuDivn" class="error_message"></div>
+                        </div>
+                        <div class="col-md-4 col-md-6">
+                            <label class="form-label">순서</label>
+                            <input th:type="number" class="form-control" th:field="*{menuOrd}" title="순서"/>
+                            <div id="error_menuOrd" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label">메뉴코드</label>
+                            <div id="code_box" class="input-group">
+                                <input th:type="text" class="form-control" th:field="*{menuCd}" title="메뉴코드" th:maxlength="10"/>
+                                <button id="btn_overlap" class="btn btn-outline-primary" type="button">중복확인</button>
+                            </div>
+                            <div id="error_menuCd" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label">메뉴명</label>
+                            <input th:type="text" class="form-control" th:field="*{menuNm}" th:maxlength="10" title="메뉴명"/>
+                            <div id="error_menuNm" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label">URL</label>
+                            <input th:type="text" class="form-control" th:field="*{menuUrl}" th:maxlength="500" title="URL"/>
+                            <div id="error_menuUrl" class="error_message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-md-12">
+                            <label class="form-label" for="menuDscr">설명</label>
+                            <textarea class="form-control" id="menuDscr" th:field="*{menuDscr}" th:maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    <div class="text-end margin_top_20px">
+                        <button type="button" class="btn btn-outline-info" onclick="fnReset();">초기화</button>
+                        <button type="button" id="btn_submit" class="btn btn-outline-primary">등록</button>
+                        <button type="button" id="btn_delete" class="btn btn-outline-danger display_none">삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</html>
