@@ -192,7 +192,7 @@
 						</th:block>
 						<th:block th:if="${maUserVO.procType eq 'update'}">
 							<button type="button" class="btn btn-outline-primary" id="btn_submit">수정</button>
-							<button type="button" class="btn btn-outline-secondary" th:onclick="fnPageCall('view', 'view', 'userId', [[${maUserVO.userId}]])">취소</button>
+							<button type="button" class="btn btn-outline-secondary" th:onclick="fnPageCall('view', 'view', 'seq', [[${maUserVO.seq}]])">취소</button>
 						</th:block>
 					</div>
 				</form>

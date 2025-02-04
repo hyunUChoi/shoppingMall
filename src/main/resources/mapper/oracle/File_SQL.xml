@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chw.shopping.dao.oracle.FileDAO">
+
+    <select id="selectList" parameterType="fileVO" resultType="fileVO">
+        /* FileDAO.selectList */
+        SELECT ATCH_FILE_ID
+             , FILE_SAVE_PATH
+             , ORG_FILE_NM
+             , SAVE_FILE_NM
+             , FILE_TYPE
+             , FILE_SIZE
+             , FILE_ORD
+        FROM T_ATCH_FILE
+        WHERE ATCH_FILE_ID = #{atchFileId}
+        AND DEL_YN = 'N'
+        ORDER BY FILE_ORD DESC
+    </select>
+
+    <select id="selectCount" parameterType="fileVO" resultType="int">
+        /* FileDAO.selectCount */
+        SELECT count(1)
+        FROM T_ATCH_FILE
+        WHERE DEL_YN = 'N'
+    </select>
+
+    <select id="selectContents" parameterType="fileVO" resultType="fileVO">
+        /* FileDAO.selectContents */
+        SELECT ATCH_FILE_ID
+             , FILE_SAVE_PATH
+             , ORG_FILE_NM
+             , SAVE_FILE_NM
+             , FILE_TYPE
+             , FILE_SIZE
+             , FILE_ORD
+        FROM T_ATCH_FILE
+        WHERE ATCH_FILE_ID = #{atchFileId}
+        AND DEL_YN = 'N'
+    </select>
+
+    <insert id="insertContents" parameterType="fileVO">
+        /* FileDAO.insertContents */
+        INSERT INTO T_ATCH_FILE (
+              ATCH_FILE_ID
+            , REG_ID
+            , FILE_SAVE_PATH
+            , ORG_FILE_NM
+            , SAVE_FILE_NM
+            , FILE_TYPE
+            , FILE_SIZE
+        ) VALUES (
+              #{atchFileId}
+            , #{loginId}
+            , #{fileSavePath}
+            , #{orgFileNm}
+            , #{saveFileNm}
+            , #{fileType}
+            , #{fileSize}
+        )
+    </insert>
+
+    <delete id="deleteContents" parameterType="fileVO">
+        /* FileDAO.deleteContents */
+        UPDATE T_ATCH_FILE
+        SET DEL_YN = 'Y'
+          , MOD_DT = SYSDATE
+          , MOD_ID = #{loginId}
+        WHERE ATCH_FILE_ID = #{atchFileId}
+        AND DEL_YN = 'N'
+    </delete>
+
+</mapper>

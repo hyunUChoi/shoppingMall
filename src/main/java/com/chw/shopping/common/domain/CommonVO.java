@@ -3,6 +3,7 @@ package com.chw.shopping.common.domain;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.Serializable;
@@ -41,8 +42,11 @@ public class CommonVO implements Serializable {
     private String search10;
     private String searchOption;
     private String searchKeyword;
-    private String searchStrtDt;
-    private String searchEndDt;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date searchStrtDt;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date searchEndDt;
 
     // 구분
     private String procType;

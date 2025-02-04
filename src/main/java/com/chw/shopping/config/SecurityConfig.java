@@ -16,9 +16,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        // 정적파일 시큐리티 건너뛰기
-        return web -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers().antMatchers("/file/**");
+        return web -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
     @Bean
@@ -30,7 +28,6 @@ public class SecurityConfig {
     public SecurityFilterChain maSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                // ma로 시작하는 경로 인식
                 .antMatcher("/ma/**")
                 .authorizeRequests(auth -> auth
                     .antMatchers("/ma/login", "/ma/logout", "/ma/login/**").permitAll()
@@ -67,7 +64,6 @@ public class SecurityConfig {
     public SecurityFilterChain ftSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                // ft로 시작하는 경로 인식
                 .antMatcher("/ft/**")
                 .authorizeRequests(auth -> auth
                         .antMatchers("/ft/login/**", "/ft/signup/**", "/ft/login", "/ft/logout","/ft/main/main").permitAll()
@@ -95,6 +91,19 @@ public class SecurityConfig {
                         .sessionFixation().changeSessionId()
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain fileSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf().disable()
+                .antMatcher("/file/**")
+                .authorizeRequests(auth -> auth
+                        .antMatchers("/file/**").permitAll()
+                        .anyRequest().authenticated()
                 );
 
         return http.build();

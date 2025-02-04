@@ -10,7 +10,7 @@
 
 =========================================================
  -->
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
@@ -44,13 +44,14 @@
 
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="/assets/vendor/libs/flatpickr/flatpickr.css" />
 
     <!-- Helpers -->
     <script src="/assets/vendor/js/helpers.js"></script>
 
     <!-- 공통 js -->
     <script src="/common/common.js"></script>
-    <script src="/common/file.js"></script>
+    <!--<script src="/common/file.js"></script>-->
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
@@ -89,8 +90,15 @@
 <script src="/assets/vendor/js/menu.js"></script>
 <!-- endbuild -->
 
+<!-- Vendors JS -->
+<script src="/assets/vendor/libs/flatpickr/flatpickr.js"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
 <!-- Main JS -->
 <script src="/assets/js/main.js"></script>
+
+<script src="/assets/js/forms-file-upload.js"></script>
+<script src="/assets/js/forms-pickers.js"></script>
 
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>

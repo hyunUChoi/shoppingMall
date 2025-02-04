@@ -18,7 +18,7 @@ public class FileVO extends CommonVO implements Serializable {
     private String orgFileNm; // 파일원본명
     private String saveFileNm; // 파일저장명
     private String fileType; // 파일타입
-    private String fileSize; // 파일크기
-    private String fileOrd; // 파일순번
+    private long fileSize; // 파일크기
+    private int fileOrd; // 파일순번
 
 }

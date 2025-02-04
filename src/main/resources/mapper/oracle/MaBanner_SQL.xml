@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chw.shopping.dao.oracle.MaBannerDAO">
+
+    <sql id="where">
+        <if test="searchKeyword != null and searchKeyword != ''">
+            <choose>
+                <when test="searchOption == 0">
+                    AND (CODE LIKE '%' || #{searchKeyword} || '%' OR CD_NM LIKE '%' || #{searchKeyword} || '%')
+                </when>
+                <when test="searchOption == 1">
+                    AND CODE LIKE '%' || #{searchKeyword} || '%'
+                </when>
+                <when test="searchOption == 2">
+                    AND CD_NM LIKE '%' || #{searchKeyword} || '%'
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="selectList" parameterType="maBannerVO" resultType="maBannerVO">
+        /* MaBannerDAO.selectList */
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS RNUM
+                 , PA.*
+            FROM (
+                SELECT SEQ
+                     , REG_ID
+                     , REG_DT
+                     , TITLE
+                     , STRT_DT
+                     , END_DT
+                     , ORD
+                     , VIEW_CNT
+                FROM T_BANNER
+                WHERE DEL_YN = 'N'
+                <include refid="where"/>
+                ORDER BY ORD
+            ) PA
+            WHERE ROWNUM <![CDATA[ <= ]]> #{lastPageNo}
+        )
+        WHERE RNUM <![CDATA[ >= ]]> #{firstPageNo}
+    </select>
+
+    <select id="selectCount" parameterType="maBannerVO" resultType="int">
+        /* MaBannerDAO.selectCount */
+        SELECT count(1)
+        FROM T_BANNER
+        WHERE DEL_YN = 'N'
+        <include refid="where"/>
+    </select>
+
+    <select id="selectContents" parameterType="maBannerVO" resultType="maBannerVO">
+        /* MaBannerDAO.selectContents */
+        SELECT SEQ
+             , REG_ID
+             , TITLE
+             , URL
+             , ORD
+             , STRT_DT
+             , END_DT
+             , ATCH_FILE_ID
+        FROM T_BANNER A
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <insert id="insertContents" parameterType="maBannerVO">
+        /* MaBannerDAO.insertContents */
+        INSERT INTO T_BANNER (
+              SEQ
+            , REG_ID
+            , TITLE
+            , URL
+            , ORD
+            , STRT_DT
+            , END_DT
+            , ATCH_FILE_ID
+        ) VALUES (
+              T_BANNER_SEQ.NEXTVAL
+            , #{loginId}
+            , #{title}
+            , #{url}
+            , #{ord}
+            , #{strtDt}
+            , #{endDt}
+            , #{atchFileId}
+        )
+    </insert>
+
+    <update id="updateContents" parameterType="maBannerVO">
+        /* MaBannerDAO.updateContents */
+        UPDATE T_BANNER
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , TITLE = #{title}
+          , URL = #{url}
+          , ORD = #{ord}
+          , STRT_DT = #{strtDt}
+          , END_DT = #{endDt}
+          , ATCH_FILE_ID = #{atchFileId}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <delete id="deleteContents" parameterType="maBannerVO">
+        /* MaBannerDAO.deleteContents */
+        UPDATE T_BANNER
+        SET DEL_YN = 'Y'
+          , MOD_DT = SYSDATE
+          , MOD_ID = #{loginId}
+        WHERE SEQ = #{seq}
+    </delete>
+
+</mapper>
