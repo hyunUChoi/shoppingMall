@@ -5,6 +5,31 @@
     document.addEventListener("DOMContentLoaded", () => {
 		fnPageCall('file', '/file/form');
 
+		let strtDt = document.getElementById('strtDt');
+		let endDt = document.getElementById('endDt');
+
+		const startPicker = flatpickr(strtDt, {
+			locale: "ko",
+			enableTime: true,
+			dateFormat: 'Y-m-d H:i',
+			onChange: function(selectedDates) {
+				if (selectedDates.length > 0) {
+					endPicker.set("minDate", selectedDates[0]);
+				}
+			}
+		});
+
+		const endPicker = flatpickr(endDt, {
+			locale: "ko",
+			enableTime: true,
+			dateFormat: 'Y-m-d H:i',
+			onChange: function(selectedDates) {
+				if (selectedDates.length > 0) {
+					startPicker.set("maxDate", selectedDates[0]);
+				}
+			}
+		});
+
 		document.getElementById('btn_submit').onclick = function() {
 			let procType = /*[[${maBannerVO.procType}]]*/'procType';
 			if(procType === 'insert') {

@@ -162,8 +162,9 @@
           , MOD_DT = SYSDATE
           , MOD_ID = #{loginId}
         WHERE MENU_CD IN (
-            SELECT MENU_CD
+            SELECT DISTINCT MENU_CD
             FROM T_MENU
+            WHERE DEL_YN = 'N'
             START WITH MENU_CD = #{menuCd}
             CONNECT BY PRIOR MENU_CD = UPPER_CD
         )
@@ -171,24 +172,26 @@
 
     <select id="selectMenuList" parameterType="maMenuVO" resultType="maMenuVO">
         /* MaMenuDAO.selectMenuList */
-        SELECT MENU_NM
-             , MENU_CD
+        SELECT LEVEL
+             , MENU_NM
              , MENU_URL
-             , MENU_DIVN
-             , MENU_ORD
+             , MENU_CD
              , UPPER_CD
-        FROM T_MENU
-        WHERE MENU_DIVN = #{menuDivn}
-        <choose>
-            <when test="upperCd != null and upperCd != ''">
-                AND UPPER_CD = #{upperCd}
-            </when>
-            <otherwise>
-                AND UPPER_CD IS NULL
-            </otherwise>
-        </choose>
-        AND DEL_YN = 'N'
-        ORDER BY MENU_ORD
+             , MENU_ORD
+             , MENU_LEVEL
+        FROM (
+                 SELECT DISTINCT MENU_CD,
+                                 MENU_NM,
+                                 MENU_URL,
+                                 UPPER_CD,
+                                 MENU_ORD,
+                                 MENU_LEVEL
+                 FROM T_MENU
+                 WHERE DEL_YN = 'N'
+             ) A
+        START WITH A.UPPER_CD IS NULL
+        CONNECT BY PRIOR A.MENU_CD = A.UPPER_CD
+        ORDER SIBLINGS BY A.MENU_ORD
     </select>
 
 </mapper>

@@ -3,7 +3,7 @@
 <!-- Menu -->
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a th:href="@{/ma/main/main}" class="app-brand-link">
+        <a th:href="${#strings.contains(#request.requestURI, '/ma/') ? '/ma/main/main' : (#strings.contains(#request.requestURI, '/ft/') ? '/ft/main/main' : '/biz/main/main')}" class="app-brand-link">
 			<span class="app-brand-logo demo">
 				<svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
                      xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -52,38 +52,16 @@
     <div class="menu-inner-shadow"></div>
     <ul class="menu-inner py-1">
 		<th:block th:if="${#strings.isEmpty(session)}">
-			<li class="menu-item">
-				<a th:href="@{/ma/menu/list}" class="menu-link">
-					<div>메뉴관리</div>
-				</a>
-			</li>
-		</th:block>
-		<th:block th:unless="${#strings.isEmpty(session)}">
-			<th:block th:each="depth1 : ${session.menuList}">
-				<li class="menu-item" th:classappend="${#strings.contains(#request.requestURI, depth1.menuCd) ? 'active open' : ''}">
-					<a th:href="${depth1.menuUrl}" class="menu-link" th:classappend="${#lists.size(depth1.menuList) > 0 ? 'menu-toggle' : ''}">
-						<div th:text="${depth1.menuNm}"></div>
+			<th:block th:if="${#strings.contains(#request.requestURI, '/ma/')}">
+				<li class="menu-item">
+					<a th:href="@{/ma/menu/list}" class="menu-link">
+						<div>메뉴관리</div>
 					</a>
-					<th:block th:each="depth2 : ${depth1.menuList}">
-						<ul class="menu-sub">
-							<li class="menu-item" th:classappend="${#strings.contains(#request.requestURI, depth2.menuCd) ? 'active open' : ''}">
-								<a th:href="${depth2.menuUrl}" class="menu-link" th:classappend="${#lists.size(depth2.menuList) > 0 ? 'menu-toggle' : ''}">
-									<div th:text="${depth2.menuNm}"></div>
-								</a>
-								<th:block th:each="depth3 : ${depth2.menuList}">
-									<ul class="menu-sub">
-										<li class="menu-item" th:classappend="${#strings.contains(#request.requestURI, depth3.menuCd) ? 'active' : ''}">
-											<a th:href="${depth3.menuUrl}" class="menu-link">
-												<div th:text="${depth3.menuNm}"></div>
-											</a>
-										</li>
-									</ul>
-								</th:block>
-							</li>
-						</ul>
-					</th:block>
 				</li>
 			</th:block>
+		</th:block>
+		<th:block th:unless="${#strings.isEmpty(session)}">
+			<th:block th:replace="common/fragments/menu :: menuList(${#strings.contains(#request.requestURI, '/ma/') ? session.maMenuList : session.ftMenuList})"></th:block>
 		</th:block>
     </ul>
 </aside>

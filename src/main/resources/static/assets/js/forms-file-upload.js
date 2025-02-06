@@ -5,9 +5,9 @@
 'use strict';
 
 (function () {
-  // previewTemplate: Updated Dropzone default previewTemplate
-  // ! Don't change it unless you really know what you are doing
-  const previewTemplate = `<div class="dz-preview dz-file-preview">
+    // previewTemplate: Updated Dropzone default previewTemplate
+    // ! Don't change it unless you really know what you are doing
+    const previewTemplate = `<div class="dz-preview dz-file-preview">
 <div class="dz-details">
   <div class="dz-thumbnail">
     <img data-dz-thumbnail>
@@ -24,30 +24,44 @@
 </div>
 </div>`;
 
-  // ? Start your code from here
+    // ? Start your code from here
 
-  // Basic Dropzone
-  // --------------------------------------------------------------------
-  const dropzoneBasic = document.querySelector('#dropzone-basic');
-  if (dropzoneBasic) {
-    const myDropzone = new Dropzone(dropzoneBasic, {
-      previewTemplate: previewTemplate,
-      parallelUploads: 1,
-      maxFilesize: 5,
-      addRemoveLinks: true,
-      maxFiles: 1
-    });
-  }
+    // Basic Dropzone
+    // --------------------------------------------------------------------
+    const dropzoneBasic = document.querySelector('#dropzone-basic');
+    if (dropzoneBasic) {
+        const myDropzone = new Dropzone(dropzoneBasic, {
+            url: '/file/upload',
+            init: function () {
+                this.on('success', function (file, response) {
+                    consoole.log(response)
+                    document.getElementById('atchFileId').value = response;
+                });
 
-  // Multiple Dropzone
-  // --------------------------------------------------------------------
-  const dropzoneMulti = document.querySelector('#dropzone-multi');
-  if (dropzoneMulti) {
-    const myDropzoneMulti = new Dropzone(dropzoneMulti, {
-      previewTemplate: previewTemplate,
-      parallelUploads: 1,
-      maxFilesize: 5,
-      addRemoveLinks: true
-    });
-  }
+                this.on('error', function (file, errorMessage) {
+                    console.log(errorMessage);
+                });
+            },
+            autoProcessQueue: true,
+            clickable: true,
+            autoQueue: false,
+            previewTemplate: previewTemplate,
+            parallelUploads: 1,
+            maxFilesize: 5,
+            addRemoveLinks: true,
+            maxFiles: 1
+        });
+    }
+
+    // Multiple Dropzone
+    // --------------------------------------------------------------------
+    const dropzoneMulti = document.querySelector('#dropzone-multi');
+    if (dropzoneMulti) {
+        const myDropzoneMulti = new Dropzone(dropzoneMulti, {
+            previewTemplate: previewTemplate,
+            parallelUploads: 1,
+            maxFilesize: 5,
+            addRemoveLinks: true
+        });
+    }
 })();

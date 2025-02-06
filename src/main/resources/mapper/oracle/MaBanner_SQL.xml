@@ -4,17 +4,7 @@
 
     <sql id="where">
         <if test="searchKeyword != null and searchKeyword != ''">
-            <choose>
-                <when test="searchOption == 0">
-                    AND (CODE LIKE '%' || #{searchKeyword} || '%' OR CD_NM LIKE '%' || #{searchKeyword} || '%')
-                </when>
-                <when test="searchOption == 1">
-                    AND CODE LIKE '%' || #{searchKeyword} || '%'
-                </when>
-                <when test="searchOption == 2">
-                    AND CD_NM LIKE '%' || #{searchKeyword} || '%'
-                </when>
-            </choose>
+            AND TITLE LIKE '%' || #{searchKeyword} || '%'
         </if>
     </sql>
 
@@ -36,7 +26,12 @@
                 FROM T_BANNER
                 WHERE DEL_YN = 'N'
                 <include refid="where"/>
-                ORDER BY ORD
+                ORDER BY
+                        CASE
+                            WHEN END_DT <![CDATA[ < ]]> SYSDATE THEN 1
+                            ELSE 0
+                        END,
+                    ORD
             ) PA
             WHERE ROWNUM <![CDATA[ <= ]]> #{lastPageNo}
         )

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+    <th:block th:fragment="menuList(menuItems)">
+        <th:block th:each="menu : ${menuItems}">
+            <li class="menu-item" th:classappend="${#strings.contains(#request.requestURI, menu.menuCd) ? 'active open' : ''}">
+                <a th:href="${menu.menuUrl}" class="menu-link" th:classappend="${#lists.isEmpty(menu.menuList) ? '' : 'menu-toggle'}">
+                    <div th:text="${menu.menuNm}"></div>
+                </a>
+                <ul class="menu-sub" th:if="${!#lists.isEmpty(menu.menuList)}">
+                    <th:block th:replace="this :: menuList(${menu.menuList})"></th:block>
+                </ul>
+            </li>
+        </th:block>
+    </th:block>
+</body>
+</html>

@@ -2,6 +2,8 @@
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
+		fnPageCall('file', '/file/form');
+
 		document.getElementById('btn_del').onclick = function() {
 			if(confirm("삭제하시겠습니까?")) {
 				fnProcessing('delete', 'deleteProc', this);
@@ -17,54 +19,32 @@
 				<h5 class="mb-0">사용자정보</h5>
 			</div>
 			<div class="card-body">
-				<form id="defaultFrm" th:object="${maUserVO}" method="post" onsubmit="return false;">
+				<form id="defaultFrm" th:object="${maBannerVO}" method="post" onsubmit="return false;">
 					<input type="hidden" th:field="*{seq}">
-					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maUserVO})"></th:block>
+					<input type="hidden" th:field="*{atchFileId}">
+					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maBannerVO})"></th:block>
 					<div class="row">
-						<div class="mb-3 col-md-4">
-							<label for="userId" class="form-label">아이디</label>
-							<input class="form-control-plaintext" id="userId" th:value="*{userId}" readonly>
+						<div class="mb-3">
+							<label for="title" class="form-label">프로모션명</label>
+							<input class="form-control-plaintext" id="title" th:value="*{title}" readonly>
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="URL">URL</label>
+							<input type="text" class="form-control-plaintext" id="URL" th:field="*{url}" readonly/>
 						</div>
 						<div class="mb-3 col-md-4">
-							<label class="form-label" for="userNm">이름</label>
-							<input type="text" class="form-control-plaintext" id="userNm" th:field="*{userNm}" readonly/>
+							<label class="form-label" for="strtDt">시작일</label>
+							<input type="text" class="form-control-plaintext" id="strtDt" th:field="*{strtDt}" readonly/>
 						</div>
 						<div class="mb-3 col-md-4">
-							<label class="form-label" for="auth">권한</label>
-							<th:block th:each="code : ${codeMap}">
-								<input type="text" class="form-control-plaintext" id="auth" th:if="${code.key eq maUserVO.auth}" th:value="${code.value}" readonly/>
-							</th:block>
+							<label class="form-label" for="endDt">휴대전화</label>
+							<input type="text" class="form-control-plaintext" id="endDt" th:field="*{endDt}" readonly/>
 						</div>
-						<div class="mb-3 col-md-6">
-							<label class="form-label" for="userTel">휴대전화</label>
-							<input type="text" class="form-control-plaintext" id="userTel" th:field="*{userTel}" readonly/>
+						<div class="mb-3 col-md-4">
+							<label class="form-label" for="ord">순서</label>
+							<input type="text" class="form-control-plaintext" id="ord" th:field="*{ord}" readonly/>
 						</div>
-						<div class="mb-3 col-md-6">
-							<label class="form-label" for="userEmail">E-MAIL</label>
-							<input type="text" class="form-control-plaintext" id="userEmail" th:field="*{userEmail}" readonly/>
-						</div>
-						<div class="mb-1 col-md-3">
-							<label class="form-label" for="userPost">우편번호</label>
-							<input type="text" class="form-control-plaintext" id="userPost" th:field="*{userPost}" readonly/>
-						</div>
-						<div class="mb-1 col-md-9"></div>
-						<div class="mb-5 col-md-3">
-							<input type="text" class="form-control-plaintext" th:field="*{userAddr}" readonly/>
-						</div>
-						<div class="mb-5 col-md-7">
-							<input type="text" class="form-control-plaintext" th:field="*{userAddrDetail}" readonly/>
-						</div>
-						<small class="form-label">마케팅 수신여부</small>
-						<div class="col-md">
-							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" id="mrk_Y" th:field="*{mrkYn}" value="Y" disabled/>
-								<label class="form-check-label" for="mrk_Y">수신 동의</label>
-							</div>
-							<div class="form-check form-check-inline">
-								<input class="form-check-input" type="radio" id="mrk_N" th:field="*{mrkYn}" value="N" disabled/>
-								<label class="form-check-label" for="mrk_N">수신 거부</label>
-							</div>
-						</div>
+						<div id="file"></div>
 					</div>
 					<div class="text-end">
 						<button type="button" class="btn btn-outline-info" onclick="fnPageCall('insert', 'updateForm')">수정</button>

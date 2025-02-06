@@ -10,14 +10,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -32,7 +37,22 @@ public class FileController {
     public String form(@ModelAttribute("searchVO") CommonVO searchVO, Model model) throws Exception {
         FileVO fileVO = new FileVO();
         fileVO.setAtchFileId(searchVO.getAtchFileId());
-        model.addAttribute("fileList", fileService.selectList(fileVO));
+        List<FileVO> fileList = fileService.selectList(fileVO);
+        List<String> thumbnailList = new ArrayList<>();
+
+        for (FileVO vo : fileList) {
+            String filePath = vo.getFileSavePath() + vo.getSaveFileNm();
+            Path path = Paths.get(filePath);
+
+            if (vo.getFileType().startsWith("image/")) {
+                byte[] fileBytes = Files.readAllBytes(path);
+                String base64Image = Base64.getEncoder().encodeToString(fileBytes);
+                thumbnailList.add("data:" + vo.getFileType() + ";base64," + base64Image);
+            }
+        }
+
+        model.addAttribute("fileList", fileList);
+        model.addAttribute("thumbnailList", thumbnailList);
         return "pages/common/fileUpload";
     }
 
@@ -67,7 +87,7 @@ public class FileController {
     }
 
     @RequestMapping("download")
-    public void download(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             String storePath = request.getParameter("fileStorePath") + request.getParameter("saveFileNm");
             File file = new File(storePath);

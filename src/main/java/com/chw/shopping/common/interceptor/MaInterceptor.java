@@ -10,7 +10,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -23,33 +26,33 @@ public class MaInterceptor  implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("========== MaInterceptor preHandle Start ==========");
         HttpSession session = request.getSession();
+        String requestURI = request.getRequestURI();
 
-        // 1차 메뉴
-        MaMenuVO menuVO1 = new MaMenuVO();
-        menuVO1.setMenuDivn("ma");
-        menuVO1.setUpperCd("");
-        List<MaMenuVO> menuList1 = menuDAO.selectMenuList(menuVO1);
-        menuVO1.setMenuList(menuList1);
+        MaMenuVO maMenuVO = new MaMenuVO();
+        maMenuVO.setMenuDivn("ma");
+        List<MaMenuVO> flatMenuList = menuDAO.selectMenuList(maMenuVO);
 
-        // 2차 메뉴
-        for(MaMenuVO menu2 : menuVO1.getMenuList()) {
-            menu2.setMenuDivn("ma");
-            menu2.setUpperCd(menu2.getMenuCd());
-            List<MaMenuVO> menuList2 = menuDAO.selectMenuList(menu2);
-            menu2.setMenuList(menuList2);
+        Map<String, MaMenuVO> menuMap = new HashMap<>();
+        List<MaMenuVO> menuList = new ArrayList<>();
 
-            // 3차 메뉴
-            for(MaMenuVO menu3 : menu2.getMenuList()) {
-                menu3.setMenuDivn("ma");
-                menu3.setUpperCd(menu3.getMenuCd());
-                List<MaMenuVO> menuList3 = menuDAO.selectMenuList(menu3);
-                menu3.setMenuList(menuList3);
-                menu2.setMaMenuVO(menu3);
+        for (MaMenuVO menu : flatMenuList) {
+            menuMap.put(menu.getMenuCd(), menu);
+
+            if (menu.getUpperCd() == null || menu.getUpperCd().isEmpty()) {
+                menuList.add(menu);
+            } else {
+                MaMenuVO parent = menuMap.get(menu.getUpperCd());
+                if (parent != null) {
+                    if(parent.getMenuList() == null) {
+                        parent.setMenuList(new ArrayList<>());
+                    }
+                    parent.getMenuList().add(menu);
+                }
             }
-            menuVO1.setMaMenuVO(menu2);
         }
 
-        session.setAttribute("menuList", menuVO1.getMenuList());
+        session.setAttribute("maMenuList", menuList);
+        session.setAttribute("requestURI", requestURI);
         log.info("========== MaInterceptor preHandle End ==========");
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
