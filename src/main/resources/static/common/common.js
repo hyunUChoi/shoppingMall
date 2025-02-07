@@ -58,7 +58,7 @@ function fnProcessing(method, url, btn) {
 }
 
 // noinspection JSUnusedGlobalSymbols
-function fnPaging(page) {
+function fnPaging(page, divn) {
     document.getElementById('page').value = page;
-    fnPageCall('list', 'list');
+    fnPageCall(divn, divn);
 }

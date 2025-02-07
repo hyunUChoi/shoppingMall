@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chw.shopping.dao.oracle.MaBoardDAO">
+
+    <sql id="where">
+        <if test="searchStrtDt != null">
+            AND STRT_DT <![CDATA[ >= ]]> #{searchStrtDt}
+        </if>
+        <if test="searchEndDt != null">
+            AND END_DT <![CDATA[ <= ]]> #{searchEndDt}
+        </if>
+        <if test="searchOption != null and searchOption != ''">
+            AND ALERT_TIME = #{searchOption}
+        </if>
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND CONT LIKE '%' || #{searchKeyword} || '%'
+        </if>
+    </sql>
+
+    <select id="selectList" parameterType="maBoardVO" resultType="maBoardVO">
+        /* MaBoardDAO.selectList */
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS RNUM
+                 , PA.*
+            FROM (
+                SELECT SEQ
+                     , REG_ID
+                     , REG_DT
+                     , STRT_DT
+                     , END_DT
+                     , ALERT_TIME
+                FROM T_BOARD
+                WHERE DEL_YN = 'N'
+                <include refid="where"/>
+                ORDER BY SEQ DESC
+            ) PA
+            WHERE ROWNUM <![CDATA[ <= ]]> #{lastPageNo}
+        )
+        WHERE RNUM <![CDATA[ >= ]]> #{firstPageNo}
+    </select>
+
+    <select id="selectCount" parameterType="maBoardVO" resultType="int">
+        /* MaBoardDAO.selectCount */
+        SELECT count(1)
+        FROM T_BOARD
+        WHERE DEL_YN = 'N'
+        <include refid="where"/>
+    </select>
+
+    <select id="selectContents" parameterType="maBoardVO" resultType="maBoardVO">
+        /* MaBoardDAO.selectContents */
+        SELECT SEQ
+             , REG_ID
+             , STRT_DT
+             , END_DT
+             , ALERT_TIME
+             , CONT
+        FROM T_BOARD
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </select>
+
+    <insert id="insertContents" parameterType="maBoardVO">
+        /* MaBoardDAO.insertContents */
+        INSERT INTO T_BOARD (
+              SEQ
+            , REG_ID
+            , STRT_DT
+            , END_DT
+            , ALERT_TIME
+            , CONT
+        ) VALUES (
+              T_BOARD_SEQ.NEXTVAL
+            , #{loginId}
+            , #{strtDt}
+            , #{endDt}
+            , #{alertTime}
+            , #{cont}
+        )
+    </insert>
+
+    <update id="updateContents" parameterType="maBoardVO">
+        /* MaBoardDAO.updateContents */
+        UPDATE T_BOARD
+        SET MOD_ID = #{loginId}
+          , MOD_DT = SYSDATE
+          , STRT_DT = #{strtDt}
+          , END_DT = #{endDt}
+          , ALERT_TIME = #{alertTime}
+          , CONT = #{cont}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <delete id="deleteContents" parameterType="maBoardVO">
+        /* MaBoardDAO.deleteContents */
+        UPDATE T_BOARD
+        SET DEL_YN = 'Y'
+          , MOD_DT = SYSDATE
+          , MOD_ID = #{loginId}
+        WHERE SEQ = #{seq}
+    </delete>
+
+</mapper>

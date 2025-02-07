@@ -25,7 +25,7 @@
 	</thead>
 	<tbody>
 		<th:block th:if="${not #lists.isEmpty(resultList.content)}">
-			<tr class="text-body" th:each="result, status : ${resultList}" th:onclick="fnPageCall('view', 'view', 'seq', [[${result.seq}]])" th:styleappend="${#dates.format(#dates.createToday(), 'yyyy-MM-dd HH:mm') gt #dates.format(result.endDt, 'yyyy-MM-dd HH:mm') ? 'background:lightgray' : ''}">
+			<tr class="text-body" th:each="result, status : ${resultList}" th:onclick="|fnPageCall('view', 'view', 'seq', ${result.seq})|" th:styleappend="${#dates.format(#dates.createToday(), 'yyyy-MM-dd HH:mm') gt #dates.format(result.endDt, 'yyyy-MM-dd HH:mm') ? 'background:lightgray' : ''}">
 				<td th:text="${resultList.totalElements - (resultList.number * resultList.size) - status.index}"></td>
 				<td><span class="text-truncate" th:text="${result.title}"></span></td>
 				<td th:text="${result.ord}"></td>
@@ -44,7 +44,7 @@
 	</tbody>
 </table>
 <div class="demo-inline-spacing">
-	<th:block th:replace="common/fragments/paging :: paging(${resultList})"></th:block>
+	<th:block th:replace="common/fragments/paging :: paging(${resultList}, 'addList')"></th:block>
 	<button class="btn btn-primary" onclick="fnPageCall('insert', 'insertForm');" style="float: right;">
 		<span><i class="bx bx-plus me-sm-1"></i>등록</span>
 	</button>

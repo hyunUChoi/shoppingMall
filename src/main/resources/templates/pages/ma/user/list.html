@@ -8,6 +8,10 @@
 			fnPageCall('addList', 'addList');
 		};
 
+		document.getElementById('btn_reset').onclick = function() {
+			window.location.reload();
+		};
+
 		document.addEventListener('keydown', function(e) {
 			if(e.keyCode === 13) {
 				fnPageCall('addList', 'addList');
@@ -41,7 +45,8 @@
 							</select>
 						</div>
 						<input type="text" th:field="*{searchKeyword}" title="검색어" class="form-control"/>
-						<a class="btn btn-outline-primary" id="btn_search">검색</a>
+						<button type="button" class="btn btn btn-outline-dark" id="btn_reset">초기화</button>
+						<button type="button" class="btn btn-outline-primary" id="btn_search">검색</button>
 					</div>
 				</div>
 			</div>

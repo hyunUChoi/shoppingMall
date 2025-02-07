@@ -2,8 +2,6 @@
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
-		fnPageCall('file', '/file/form');
-
 		document.getElementById('btn_del').onclick = function() {
 			if(confirm("삭제하시겠습니까?")) {
 				fnProcessing('delete', 'deleteProc', this);
@@ -19,32 +17,26 @@
 				<h5 class="mb-0">사용자정보</h5>
 			</div>
 			<div class="card-body">
-				<form id="defaultFrm" th:object="${maBannerVO}" method="post" onsubmit="return false;">
+				<form id="defaultFrm" th:object="${maEventVO}" method="post" onsubmit="return false;">
 					<input type="hidden" th:field="*{seq}">
-					<input type="hidden" th:field="*{atchFileId}">
-					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maBannerVO})"></th:block>
+					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maEventVO})"></th:block>
 					<div class="row">
-						<div class="mb-3">
-							<label for="title" class="form-label">프로모션명</label>
-							<input class="form-control-plaintext" id="title" th:value="*{title}" readonly>
-						</div>
-						<div class="mb-3">
-							<label class="form-label" for="URL">URL</label>
-							<input type="text" class="form-control-plaintext" id="URL" th:field="*{url}" readonly/>
-						</div>
 						<div class="mb-3 col-md-4">
-							<label class="form-label" for="strtDt">시작일</label>
+							<label class="form-label" for="strtDt">이벤트 시작일</label>
 							<input type="text" class="form-control-plaintext" id="strtDt" th:field="*{strtDt}" readonly/>
 						</div>
 						<div class="mb-3 col-md-4">
-							<label class="form-label" for="endDt">종료일</label>
+							<label class="form-label" for="endDt">이벤트 종료일</label>
 							<input type="text" class="form-control-plaintext" id="endDt" th:field="*{endDt}" readonly/>
 						</div>
 						<div class="mb-3 col-md-4">
-							<label class="form-label" for="ord">순서</label>
-							<input type="text" class="form-control-plaintext" id="ord" th:field="*{ord}" readonly/>
+							<label class="form-label" for="ord">이벤트 발송 시간</label>
+							<input type="text" class="form-control-plaintext" id="ord" th:field="*{alertTime}" readonly/>
 						</div>
-						<div id="file"></div>
+						<div class="mb-3">
+							<label class="form-label" for="cont">이벤트 내용</label>
+							<textarea class="form-control-plaintext" id="cont" th:field="*{cont}" readonly></textarea>
+						</div>
 					</div>
 					<div class="text-end">
 						<button type="button" class="btn btn-outline-info" onclick="fnPageCall('insert', 'updateForm')">수정</button>

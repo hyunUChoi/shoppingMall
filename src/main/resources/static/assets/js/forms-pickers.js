@@ -7,8 +7,8 @@
 (function () {
   // Flat Picker
   // --------------------------------------------------------------------
-  const flatpickrDate = document.querySelector('#flatpickr-date'),
-    flatpickrTime = document.querySelector('#flatpickr-time'),
+  const flatpickrDate = document.querySelectorAll('.flatpickr-date'),
+    flatpickrTime = document.querySelectorAll('.flatpickr-time-js'),
     flatpickrDateTime = document.querySelectorAll('.flatpickr-datetime'),
     flatpickrMulti = document.querySelector('#flatpickr-multi'),
     flatpickrRange = document.querySelector('#flatpickr-range'),
@@ -19,6 +19,7 @@
   // Date
   if (flatpickrDate) {
     flatpickrDate.flatpickr({
+      locale: "ko",
       monthSelectorType: 'static'
     });
   }
@@ -26,6 +27,7 @@
   // Time
   if (flatpickrTime) {
     flatpickrTime.flatpickr({
+      locale: "ko",
       enableTime: true,
       noCalendar: true
     });
@@ -51,7 +53,7 @@
   }
 
   // Range
-  if (typeof flatpickrRange != undefined) {
+  if (typeof flatpickrRange !== undefined) {
     flatpickrRange.flatpickr({
       mode: 'range'
     });

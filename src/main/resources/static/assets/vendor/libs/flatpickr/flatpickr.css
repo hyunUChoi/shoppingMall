@@ -15,6 +15,9 @@
   touch-action: manipulation;
   border-radius: 0.5rem;
 }
+.noCalendar {
+  right: 4rem !important;
+}
 .flatpickr-calendar.open, .flatpickr-calendar.inline {
   visibility: visible;
   overflow: visible;

@@ -3,8 +3,24 @@
 <mapper namespace="com.chw.shopping.dao.oracle.MaBannerDAO">
 
     <sql id="where">
+        <if test="searchStrtDt != null">
+            AND STRT_DT <![CDATA[ >= ]]> #{searchStrtDt}
+        </if>
+        <if test="searchEndDt != null">
+            AND END_DT <![CDATA[ <= ]]> #{searchEndDt}
+        </if>
         <if test="searchKeyword != null and searchKeyword != ''">
-            AND TITLE LIKE '%' || #{searchKeyword} || '%'
+            <choose>
+                <when test="searchOption == 0">
+                    AND (TITLE LIKE '%' || #{searchKeyword} || '%' OR URL LIKE '%' || #{searchKeyword} || '%')
+                </when>
+                <when test="searchOption == 1">
+                    AND TITLE LIKE '%' || #{searchKeyword} || '%'
+                </when>
+                <when test="searchOption == 2">
+                    AND URL LIKE '%' || #{searchKeyword} || '%'
+                </when>
+            </choose>
         </if>
     </sql>
 
@@ -56,7 +72,7 @@
              , STRT_DT
              , END_DT
              , ATCH_FILE_ID
-        FROM T_BANNER A
+        FROM T_BANNER
         WHERE SEQ = #{seq}
         AND DEL_YN = 'N'
     </select>
