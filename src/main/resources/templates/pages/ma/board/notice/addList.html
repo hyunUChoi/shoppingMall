@@ -3,20 +3,18 @@
 <table class="datatables-users table border-top dataTable no-footer dtr-column" style="width: 100%;">
 	<colgroup>
 		<col style="width: 7%;">
-		<col style="width: 10%;">
-		<col style="width: 20%;">
-		<col style="width: 15%;">
 		<col>
+		<col style="width: 15%;">
+		<col style="width: 15%;">
 		<col style="width: 15%;">
 		<col style="width: 15%;">
 	</colgroup>
 	<thead>
 		<tr>
 			<th>no.</th>
-			<th>권한</th>
-			<th>아이디</th>
-			<th>고객명</th>
-			<th>E-MAIL</th>
+			<th>제목</th>
+			<th>공지시작일</th>
+			<th>공지종료일</th>
 			<th>등록자</th>
 			<th>등록일</th>
 		</tr>
@@ -25,19 +23,16 @@
 		<th:block th:if="${not #lists.isEmpty(resultList.content)}">
 			<tr class="text-body" th:each="result, status : ${resultList}" th:onclick="|fnPageCall('view', 'view', 'seq', ${result.seq})|">
 				<td th:text="${resultList.totalElements - (resultList.number * resultList.size) - status.index}"></td>
-				<th:block th:each="code : ${codeMap}">
-					<td th:if="${result.auth eq code.key}" th:text="${code.value}"></td>
-				</th:block>
-				<td><span class="text-truncate" th:text="${result.userId}"></span></td>
-				<td><span class="text-truncate" th:text="${result.userId}"></span></td>
-				<td><span class="text-truncate" th:text="${result.userEmail}"></span></td>
+				<td><span class="text-truncate" th:text="${result.title}"></span></td>
+				<td th:text="${#temporals.format(result.notiStrtDt, 'yyyy-MM-dd')}"></td>
+				<td th:text="${#temporals.format(result.notiEndDt, 'yyyy-MM-dd')}"></td>
 				<td th:text="${result.regId}"></td>
 				<td th:text="${#temporals.format(result.regDt, 'yyyy-MM-dd')}"></td>
 			</tr>
 		</th:block>
 		<th:block th:unless="${not #lists.isEmpty(resultList.content)}">
 			<tr class="text-body">
-				<td th:colspan="7" style="text-align: center; height: 3rem;">등록된 데이터가 없습니다.</td>
+				<td th:colspan="6" style="text-align: center; height: 3rem;">등록된 데이터가 없습니다.</td>
 			</tr>
 		</th:block>
 	</tbody>

@@ -10,7 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -35,11 +35,11 @@ public class MaBannerVO extends CommonVO implements Serializable {
 
     @NotNull(groups = {insert.class}, message = "프로모션 시작일을 입력해주세요.")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Date strtDt; // 프로모션 시작일
+    private LocalDateTime strtDt; // 프로모션 시작일
 
     @NotNull(groups = {insert.class}, message = "프로모션 종료일을 입력해주세요.")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Date endDt; // 프로모션 종료일
+    private LocalDateTime endDt; // 프로모션 종료일
 
     private int viewCnt; // 조회수
 

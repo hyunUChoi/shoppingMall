@@ -45,7 +45,7 @@
 					fnProcessing('post', 'insertProc', this);
 				} else {
 					let url = changePw ? 'passwordUpdateProc' : 'updateProc';
-					fnProcessing('put', url, this);
+					fnProcessing('patch', url, this);
 				}
 
 			} else {

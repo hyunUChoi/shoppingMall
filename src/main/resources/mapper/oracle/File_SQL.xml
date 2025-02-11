@@ -12,7 +12,7 @@
              , FILE_SIZE
              , FILE_ORD
         FROM T_ATCH_FILE
-        WHERE ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+        WHERE ATCH_FILE_ID = #{atchFileId}
         AND DEL_YN = 'N'
         ORDER BY FILE_ORD DESC
     </select>

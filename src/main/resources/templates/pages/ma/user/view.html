@@ -21,6 +21,14 @@
 					<input type="hidden" th:field="*{seq}">
 					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maUserVO})"></th:block>
 					<div class="row">
+						<div class="mb-3 col-md-6">
+							<label class="form-label" for="regId">등록자</label>
+							<input type="text" class="form-control-plaintext" id="regId" th:value="*{regId + ' (' + regNm + ')'}" readonly/>
+						</div>
+						<div class="mb-3 col-md-6">
+							<label class="form-label" for="regDt">등록일</label>
+							<input type="text" class="form-control-plaintext" id="regDt" th:value="*{#temporals.format(regDt, 'yyyy-MM-dd HH:mm')}" readonly/>
+						</div>
 						<div class="mb-3 col-md-4">
 							<label for="userId" class="form-label">아이디</label>
 							<input class="form-control-plaintext" id="userId" th:value="*{userId}" readonly>

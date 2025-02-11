@@ -65,6 +65,9 @@
     <select id="selectContents" parameterType="maUserVO" resultType="maUserVO">
         /* MaUserDAO.selectContents */
         SELECT SEQ
+             , REG_ID
+             , (SELECT USER_NM FROM T_USER WHERE REG_ID = A.USER_ID AND DEL_YN = 'N') AS REG_NM
+             , REG_DT
              , USER_ID
              , USER_PW
              , USER_NM
@@ -75,7 +78,7 @@
              , USER_ADDR_DETAIL
              , MRK_YN
              , AUTH
-        FROM T_USER
+        FROM T_USER A
         WHERE SEQ = #{seq}
         AND DEL_YN = 'N'
     </select>

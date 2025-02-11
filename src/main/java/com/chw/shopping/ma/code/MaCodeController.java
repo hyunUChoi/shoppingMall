@@ -60,7 +60,7 @@ public class MaCodeController {
     }
 
     @ResponseBody
-    @PutMapping(value = "updateProc")
+    @PatchMapping(value = "updateProc")
     public ResponseEntity<?> updateProc(@Validated(MaCodeVO.insert.class) @ModelAttribute("searchVO") MaCodeVO searchVO,  BindingResult bindingResult) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("return", "list");

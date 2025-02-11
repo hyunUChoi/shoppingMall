@@ -61,7 +61,7 @@ public class MaBannerController {
     }
 
     @ResponseBody
-    @PutMapping(value = "updateProc")
+    @PatchMapping(value = "updateProc")
     public ResponseEntity<?> updateProc(@Validated(MaBannerVO.insert.class) @ModelAttribute("searchVO") MaBannerVO searchVO, BindingResult bindingResult) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("return", "view?seq" + searchVO.getSeq());

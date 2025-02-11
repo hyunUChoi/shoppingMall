@@ -1,6 +1,7 @@
 package com.chw.shopping.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -38,6 +39,7 @@ public class OracleConfig {
         bean.setDataSource(dataSource);
         bean.setTypeAliasesPackage("com.chw.shopping");
         bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath*:mapper/oracle/*.xml"));
+        bean.setConfiguration(mybatisConfiguration());
         return bean.getObject();
     }
 
@@ -51,6 +53,13 @@ public class OracleConfig {
     @Bean
     public DataSourceTransactionManager oracleTransactionManager(@Qualifier("oracleDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
+    }
+
+    private org.apache.ibatis.session.Configuration mybatisConfiguration() {
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setMapUnderscoreToCamelCase(true);
+        configuration.setJdbcTypeForNull(JdbcType.NULL);
+        return configuration;
     }
 
 }

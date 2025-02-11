@@ -50,15 +50,20 @@
 
     <select id="selectContents" parameterType="maEventVO" resultType="maEventVO">
         /* MaEventDAO.selectContents */
-        SELECT SEQ
-             , REG_ID
-             , STRT_DT
-             , END_DT
-             , ALERT_TIME
-             , CONT
-        FROM T_EVENT
-        WHERE SEQ = #{seq}
-        AND DEL_YN = 'N'
+        SELECT A.SEQ
+             , A.REG_ID
+             , B.USER_NM AS REG_NM
+             , A.REG_DT
+             , A.STRT_DT
+             , A.END_DT
+             , A.ALERT_TIME
+             , A.CONT
+        FROM T_EVENT A
+        LEFT JOIN T_USER B
+        ON A.REG_ID = B.USER_ID
+        AND B.DEL_YN = 'N'
+        WHERE A.SEQ = #{seq}
+        AND A.DEL_YN = 'N'
     </select>
 
     <insert id="insertContents" parameterType="maEventVO">
@@ -101,5 +106,19 @@
           , MOD_ID = #{loginId}
         WHERE SEQ = #{seq}
     </delete>
+
+    <select id="selectAllList" resultType="maEventVO">
+        /* MaEventDAO.selectAllList */
+        SELECT SEQ
+             , REG_ID
+             , REG_DT
+             , STRT_DT
+             , END_DT
+             , ALERT_TIME
+             , CONT
+        FROM T_EVENT
+        WHERE DEL_YN = 'N'
+        ORDER BY SEQ DESC
+    </select>
 
 </mapper>

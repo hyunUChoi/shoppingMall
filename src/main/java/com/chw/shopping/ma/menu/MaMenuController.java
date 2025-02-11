@@ -63,7 +63,7 @@ public class MaMenuController {
     }
 
     @ResponseBody
-    @PutMapping(value = "updateProc")
+    @PatchMapping(value = "updateProc")
     public ResponseEntity<?> updateProc(@Validated(MaMenuVO.insert.class) @ModelAttribute("searchVO") MaMenuVO searchVO, BindingResult bindingResult) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("return", "list");

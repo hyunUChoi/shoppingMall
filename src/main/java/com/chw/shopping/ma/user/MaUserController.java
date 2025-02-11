@@ -74,7 +74,7 @@ public class MaUserController {
     }
 
     @ResponseBody
-    @PutMapping(value = "updateProc")
+    @PatchMapping(value = "updateProc")
     public ResponseEntity<?> updateProc(@Validated(MaUserVO.update.class) @ModelAttribute("searchVO") MaUserVO searchVO, BindingResult bindingResult) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("return", "view?seq" + searchVO.getSeq());
@@ -84,7 +84,7 @@ public class MaUserController {
     }
 
     @ResponseBody
-    @PutMapping(value = "passwordUpdateProc")
+    @PatchMapping(value = "passwordUpdateProc")
     public ResponseEntity<?> passwordUpdateProc(@Validated(MaUserVO.insert.class) @ModelAttribute("searchVO") MaUserVO searchVO, BindingResult bindingResult) throws Exception {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("return", "view?seq" + searchVO.getSeq());

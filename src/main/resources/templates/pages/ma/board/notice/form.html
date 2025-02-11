@@ -2,10 +2,12 @@
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
-		let strtDt = document.getElementById('strtDt');
-		let endDt = document.getElementById('endDt');
+		fnPageCall('file', '/file/form');
 
-		const startPicker = flatpickr(strtDt, {
+		let notiStrtDt = document.getElementById('notiStrtDt');
+		let notiEndDt = document.getElementById('notiEndDt');
+
+		const startPicker = flatpickr(notiStrtDt, {
 			locale: "ko",
 			dateFormat: 'Y-m-d',
 			onChange: function(selectedDates) {
@@ -15,7 +17,7 @@
 			}
 		});
 
-		const endPicker = flatpickr(endDt, {
+		const endPicker = flatpickr(notiEndDt, {
 			locale: "ko",
 			dateFormat: 'Y-m-d',
 			onChange: function(selectedDates) {
@@ -26,7 +28,7 @@
 		});
 
 		document.getElementById('btn_submit').onclick = function() {
-			let procType = /*[[${maEventVO.procType}]]*/'procType';
+			let procType = /*[[${maBoardVO.procType}]]*/'procType';
 			if(procType === 'insert') {
 				fnProcessing('post', 'insertProc', this);
 			} else {
@@ -35,56 +37,56 @@
 		};
     });
 </script>
-<h4 class="fw-bold py-3 mb-4">이벤트관리</h4>
+<h4 class="fw-bold py-3 mb-4">공지사항</h4>
 <div class="row">
 	<div class="col-xl">
 		<div class="card mb-4">
 			<div class="card-header d-flex justify-content-between align-items-center">
-				<h5 class="mb-0">이벤트<th:block th:text="${maEventVO.procType eq 'insert' ? '등록' : '수정'}"></th:block></h5>
+				<h5 class="mb-0">공지사항 <th:block th:text="${maBoardVO.procType eq 'insert' ? '등록' : '수정'}"></th:block></h5>
 			</div>
 			<div class="card-body">
-				<form id="defaultFrm" th:object="${maEventVO}" method="post" onsubmit="return false;">
+				<form id="defaultFrm" th:object="${maBoardVO}" method="post" onsubmit="return false;">
 					<input type="hidden" th:field="*{seq}">
-					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maEventVO})"/>
+					<input type="hidden" th:field="*{brdDivn}">
+					<input type="hidden" th:field="*{atchFileId}">
+					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maBoardVO})"/>
 					<div class="row">
-						<div class="mb-3 col-md-4">
-							<label class="form-label">이벤트 시작일</label>
+						<div class="mb-3 col-md-6">
+							<label class="form-label">공지 시작일</label>
 							<div class="input-group input-group-merge">
-								<input type="text" class="form-control flatpickr-datetime" th:field="*{strtDt}" title="시작일"/>
+								<input type="text" class="form-control flatpickr-datetime" th:field="*{notiStrtDt}" title="시작일"/>
 								<span class="input-group-text"><i class="icon-base bx bx-calendar"></i></span>
 							</div>
-							<div id="error_strtDt" class="error_message"></div>
+							<div id="error_notiStrtDt" class="error_message"></div>
 						</div>
-						<div class="mb-3 col-md-4">
-							<label class="form-label">이벤트 종료일</label>
+						<div class="mb-3 col-md-6">
+							<label class="form-label">공지 종료일</label>
 							<div class="input-group input-group-merge">
-								<input type="text" class="form-control flatpickr-datetime" th:field="*{endDt}" title="종료일"/>
+								<input type="text" class="form-control flatpickr-datetime" th:field="*{notiEndDt}" title="종료일"/>
 								<span class="input-group-text"><i class="icon-base bx bx-calendar"></i></span>
 							</div>
-							<div id="error_endDt" class="error_message"></div>
-						</div>
-						<div class="mb-3 col-md-4">
-							<label class="form-label">이벤트 발송 시간</label>
-							<div class="input-group input-group-merge">
-								<input type="text" class="form-control flatpickr-time-js" th:field="*{alertTime}" title="이벤트 발송 시간"/>
-								<span class="input-group-text"><i class="icon-base bx bx-calendar"></i></span>
-							</div>
-							<div id="error_alertTime" class="error_message"></div>
+							<div id="error_notiEndDt" class="error_message"></div>
 						</div>
 						<div class="mb-3">
-							<label class="form-label">이벤트 내용</label>
-							<textarea class="form-control" id="menuDscr" th:field="*{cont}" th:maxlength="100" title="이벤트 내용"></textarea>
+							<label class="form-label">제목</label>
+							<input type="text" class="form-control" th:field="*{title}" title="제목" maxlength="50"/>
+							<div id="error_title" class="error_message"></div>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">내용</label>
+							<textarea class="form-control" id="menuDscr" th:field="*{cont}" th:maxlength="1000" title="내용"></textarea>
 							<div id="error_cont" class="error_message"></div>
 						</div>
+						<div id="file"></div>
 					</div>
 					<div class="text-end">
-						<th:block th:if="${maEventVO.procType eq 'insert'}">
+						<th:block th:if="${maBoardVO.procType eq 'insert'}">
 							<button type="button" class="btn btn-outline-primary" id="btn_submit">등록</button>
 							<button type="button" class="btn btn-outline-secondary" onclick="fnPageCall('list', 'list')">취소</button>
 						</th:block>
-						<th:block th:if="${maEventVO.procType eq 'update'}">
+						<th:block th:if="${maBoardVO.procType eq 'update'}">
 							<button type="button" class="btn btn-outline-primary" id="btn_submit">수정</button>
-							<button type="button" class="btn btn-outline-secondary" th:onclick="|fnPageCall('view', 'view', 'seq', ${maEventVO.seq})|">취소</button>
+							<button type="button" class="btn btn-outline-secondary" th:onclick="|fnPageCall('view', 'view', 'seq', ${maBoardVO.seq})|">취소</button>
 						</th:block>
 					</div>
 				</form>

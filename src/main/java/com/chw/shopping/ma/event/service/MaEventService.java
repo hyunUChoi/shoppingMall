@@ -3,6 +3,8 @@ package com.chw.shopping.ma.event.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface MaEventService {
 
     Page<MaEventVO> selectList(MaEventVO vo, Pageable page) throws Exception;
@@ -14,5 +16,7 @@ public interface MaEventService {
     void updateContents(MaEventVO vo) throws Exception;
 
     void deleteContents(MaEventVO vo) throws Exception;
+
+    List<MaEventVO> selectAllList() throws Exception;
 
 }

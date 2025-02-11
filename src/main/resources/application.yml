@@ -31,14 +31,16 @@ spring:
       max-request-size: 50MB
       enabled: true
 
-mybatis:
-  oracle:
-    configuration:
-      map-underscore-to-camel-case: true
+##mybatis:
+  ##oracle:
+    ##configuration:
+      ##map-underscore-to-camel-case: true
+      ##jdbc-type-for-null: NULL
 
-  mysql:
-    configuration:
-      map-underscore-to-camel-case: true
+  ##mysql:
+    ##configuration:
+      ##map-underscore-to-camel-case: true
+      ##jdbc-type-for-null: NULL
 
 logging:
   config: classpath:logback-spring.xml

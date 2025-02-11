@@ -53,4 +53,9 @@ public class MaEventServiceImpl implements MaEventService {
         maEventDAO.deleteContents(vo);
     }
 
+    @Override
+    public List<MaEventVO> selectAllList() {
+        return maEventDAO.selectAllList();
+    }
+
 }

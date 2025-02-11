@@ -20,4 +20,6 @@ public interface MaEventDAO {
 
     void deleteContents(MaEventVO vo);
 
+    List<MaEventVO> selectAllList();
+
 }

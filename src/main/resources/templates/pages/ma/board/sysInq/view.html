@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+		fnPageCall('file', '/file/form');
+
+		document.getElementById('btn_del').onclick = function() {
+			if(confirm("삭제하시겠습니까?")) {
+				fnProcessing('delete', 'deleteProc', this);
+			}
+		};
+
+		document.getElementById('btn_answer').onclick = function() {
+			fnProcessing('patch', 'inqUpdateProc', this);
+		};
+    });
+</script>
+<h4 class="fw-bold py-3 mb-4">문의사항</h4>
+<div class="row">
+	<div class="col-xl">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<h5 class="mb-0">문의사항 상세</h5>
+			</div>
+			<div class="card-body">
+				<form id="defaultFrm" th:object="${maBoardVO}" method="post" onsubmit="return false;">
+					<input type="hidden" th:field="*{seq}">
+					<input type="hidden" th:field="*{brdDivn}">
+					<input type="hidden" th:field="*{atchFileId}">
+					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maBoardVO})"></th:block>
+					<div class="row">
+						<div class="mb-3 col-md-6">
+							<label class="form-label" for="regId">등록자</label>
+							<input type="text" class="form-control-plaintext" id="regId" th:value="*{regId + ' (' + regNm + ')'}" readonly/>
+						</div>
+						<div class="mb-3 col-md-6">
+							<label class="form-label" for="regDt">등록일</label>
+							<input type="text" class="form-control-plaintext" id="regDt" th:value="*{#temporals.format(regDt, 'yyyy-MM-dd HH:mm')}" readonly/>
+						</div>
+						<div class="mb-3 col-md-3">
+							<label for="qaType" class="form-label">문의유형</label>
+							<th:block th:each="code : ${codeMap}">
+								<input type="text" class="form-control-plaintext" id="qaType" th:if="${code.key eq maBoardVO.qaType}" th:value="${code.value}" readonly/>
+							</th:block>
+						</div>
+						<div class="mb-3 col-md-9">
+							<label class="form-label" for="title">제목</label>
+							<input type="text" class="form-control-plaintext" id="title" th:field="*{title}" readonly/>
+						</div>
+						<div class="mb-3">
+							<label class="form-label" for="cont">내용</label>
+							<textarea class="form-control-plaintext" id="cont" th:field="*{cont}" readonly></textarea>
+						</div>
+						<div id="file"></div>
+						<hr>
+						<div class="card-header d-flex justify-content-between align-items-center">
+							<h5 class="mb-0">문의사항 답변</h5>
+						</div>
+						<th:block th:if="${!#strings.isEmpty(maBoardVO.answer)}">
+							<div class="mb-3 col-md-6">
+								<label class="form-label" for="ansId">답변등록자</label>
+								<input type="text" class="form-control-plaintext" id="ansId" th:value="*{ansId + ' (' + ansNm + ')'}" readonly/>
+							</div>
+							<div class="mb-3 col-md-6">
+								<label class="form-label" for="ansDt">답변등록일</label>
+								<input type="text" class="form-control-plaintext" id="ansDt" th:value="*{#temporals.format(ansDt, 'yyyy-MM-dd HH:mm')}" readonly/>
+							</div>
+						</th:block>
+						<div class="mb-3">
+							<label class="form-label">답변</label>
+							<textarea class="form-control" id="menuDscr" th:field="*{answer}" th:maxlength="1000" title="답변"></textarea>
+							<div id="error_answer" class="error_message"></div>
+						</div>
+					</div>
+					<div class="text-end">
+						<button type="button" class="btn btn-outline-primary" id="btn_answer" th:text="${#strings.isEmpty(maBoardVO.answer) ? '답변 등록' : '답변 수정'}"></button>
+						<button type="button" class="btn btn-outline-info" onclick="fnPageCall('insert', 'updateForm')">수정</button>
+						<button type="button" class="btn btn-outline-danger" id="btn_del">삭제</button>
+						<button type="button" class="btn btn-outline-secondary" onclick="fnPageCall('list', 'list')">목록</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

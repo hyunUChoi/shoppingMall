@@ -4,16 +4,25 @@
 
     <sql id="where">
         <if test="searchStrtDt != null">
-            AND STRT_DT <![CDATA[ >= ]]> #{searchStrtDt}
+            AND NOTI_STRT_DT <![CDATA[ >= ]]> #{searchStrtDt}
         </if>
         <if test="searchEndDt != null">
-            AND END_DT <![CDATA[ <= ]]> #{searchEndDt}
+            AND NOTI_END_DT <![CDATA[ <= ]]> #{searchEndDt}
         </if>
-        <if test="searchOption != null and searchOption != ''">
-            AND ALERT_TIME = #{searchOption}
+        <if test="search1 != null and search1 != ''">
+            AND QA_TYPE = #{search1}
         </if>
+
         <if test="searchKeyword != null and searchKeyword != ''">
-            AND CONT LIKE '%' || #{searchKeyword} || '%'
+            <if test="searchOption == 0">
+                AND (TITLE LIKE '%' || #{searchKeyword} || '%' OR CONT LIKE '%' || #{searchKeyword} || '%')
+            </if>
+            <if test="searchOption == 1">
+                AND TITLE LIKE '%' || #{searchKeyword} || '%'
+            </if>
+            <if test="searchOption == 2">
+                AND CONT LIKE '%' || #{searchKeyword} || '%'
+            </if>
         </if>
     </sql>
 
@@ -27,11 +36,17 @@
                 SELECT SEQ
                      , REG_ID
                      , REG_DT
-                     , STRT_DT
-                     , END_DT
-                     , ALERT_TIME
+                     , BRD_DIVN
+                     , TITLE
+                     , CONT
+                     , NOTI_STRT_DT
+                     , NOTI_END_DT
+                     , QA_TYPE
+                     , ANSWER
+                     , ATCH_FILE_ID
                 FROM T_BOARD
                 WHERE DEL_YN = 'N'
+                AND BRD_DIVN = #{brdDivn}
                 <include refid="where"/>
                 ORDER BY SEQ DESC
             ) PA
@@ -50,15 +65,31 @@
 
     <select id="selectContents" parameterType="maBoardVO" resultType="maBoardVO">
         /* MaBoardDAO.selectContents */
-        SELECT SEQ
-             , REG_ID
-             , STRT_DT
-             , END_DT
-             , ALERT_TIME
-             , CONT
-        FROM T_BOARD
-        WHERE SEQ = #{seq}
-        AND DEL_YN = 'N'
+        SELECT A.SEQ
+             , A.REG_ID
+             , B.USER_NM AS REG_NM
+             , A.REG_DT
+             , A.BRD_DIVN
+             , A.TITLE
+             , A.CONT
+             , A.NOTI_STRT_DT
+             , A.NOTI_END_DT
+             , A.QA_TYPE
+             , A.ATCH_FILE_ID
+             , A.ANSWER
+             , A.ANS_ID
+             , A.ANS_ID
+             , C.USER_NM AS ANS_NM
+             , A.ANS_DT
+        FROM T_BOARD A
+        LEFT JOIN T_USER B
+        ON A.REG_ID = B.USER_ID
+        AND B.DEL_YN = 'N'
+        LEFT JOIN T_USER C
+        ON A.ANS_ID = C.USER_ID
+        AND C.DEL_YN = 'N'
+        WHERE A.SEQ = #{seq}
+        AND A.DEL_YN = 'N'
     </select>
 
     <insert id="insertContents" parameterType="maBoardVO">
@@ -66,17 +97,23 @@
         INSERT INTO T_BOARD (
               SEQ
             , REG_ID
-            , STRT_DT
-            , END_DT
-            , ALERT_TIME
+            , BRD_DIVN
+            , TITLE
             , CONT
+            , NOTI_STRT_DT
+            , NOTI_END_DT
+            , QA_TYPE
+            , ATCH_FILE_ID
         ) VALUES (
               T_BOARD_SEQ.NEXTVAL
             , #{loginId}
-            , #{strtDt}
-            , #{endDt}
-            , #{alertTime}
+            , #{brdDivn}
+            , #{title}
             , #{cont}
+            , #{notiStrtDt}
+            , #{notiEndDt}
+            , #{qaType}
+            , #{atchFileId}
         )
     </insert>
 
@@ -85,10 +122,22 @@
         UPDATE T_BOARD
         SET MOD_ID = #{loginId}
           , MOD_DT = SYSDATE
-          , STRT_DT = #{strtDt}
-          , END_DT = #{endDt}
-          , ALERT_TIME = #{alertTime}
+          , TITLE = #{title}
           , CONT = #{cont}
+          , NOTI_STRT_DT = #{notiStrtDt}
+          , NOTI_END_DT = #{notiEndDt}
+          , QA_TYPE = #{qaType}
+          , ATCH_FILE_ID = #{atchFileId}
+        WHERE SEQ = #{seq}
+        AND DEL_YN = 'N'
+    </update>
+
+    <update id="updateAnswerContents" parameterType="maBoardVO">
+        /* MaBoardDAO.updateAnswerContents */
+        UPDATE T_BOARD
+        SET ANS_ID = #{loginId}
+          , ANS_DT = SYSDATE
+          , ANSWER = #{answer}
         WHERE SEQ = #{seq}
         AND DEL_YN = 'N'
     </update>

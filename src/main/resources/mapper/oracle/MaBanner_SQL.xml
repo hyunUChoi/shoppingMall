@@ -64,17 +64,22 @@
 
     <select id="selectContents" parameterType="maBannerVO" resultType="maBannerVO">
         /* MaBannerDAO.selectContents */
-        SELECT SEQ
-             , REG_ID
-             , TITLE
-             , URL
-             , ORD
-             , STRT_DT
-             , END_DT
-             , ATCH_FILE_ID
-        FROM T_BANNER
-        WHERE SEQ = #{seq}
-        AND DEL_YN = 'N'
+        SELECT A.SEQ
+             , A.REG_ID
+             , B.USER_NM AS REG_NM
+             , A.REG_DT
+             , A.TITLE
+             , A.URL
+             , A.ORD
+             , A.STRT_DT
+             , A.END_DT
+             , A.ATCH_FILE_ID
+        FROM T_BANNER A
+        LEFT JOIN T_USER B
+        ON A.REG_ID = B.USER_ID
+        AND B.DEL_YN = 'N'
+        WHERE A.SEQ = #{seq}
+        AND A.DEL_YN = 'N'
     </select>
 
     <insert id="insertContents" parameterType="maBannerVO">

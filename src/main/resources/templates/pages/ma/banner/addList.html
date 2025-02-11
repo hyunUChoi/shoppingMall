@@ -25,15 +25,15 @@
 	</thead>
 	<tbody>
 		<th:block th:if="${not #lists.isEmpty(resultList.content)}">
-			<tr class="text-body" th:each="result, status : ${resultList}" th:onclick="|fnPageCall('view', 'view', 'seq', ${result.seq})|" th:styleappend="${#dates.format(#dates.createToday(), 'yyyy-MM-dd HH:mm') gt #dates.format(result.endDt, 'yyyy-MM-dd HH:mm') ? 'background:lightgray' : ''}">
+			<tr class="text-body" th:each="result, status : ${resultList}" th:onclick="|fnPageCall('view', 'view', 'seq', ${result.seq})|" th:styleappend="${#dates.format(#dates.createToday(), 'yyyy-MM-dd HH:mm') gt #temporals.format(result.endDt, 'yyyy-MM-dd HH:mm') ? 'background:lightgray' : ''}">
 				<td th:text="${resultList.totalElements - (resultList.number * resultList.size) - status.index}"></td>
 				<td><span class="text-truncate" th:text="${result.title}"></span></td>
 				<td th:text="${result.ord}"></td>
-				<td th:text="${#dates.format(result.strtDt, 'yyyy-MM-dd HH:mm')}"></td>
-				<td th:text="${#dates.format(result.endDt, 'yyyy-MM-dd HH:mm')}"></td>
+				<td th:text="${#temporals.format(result.strtDt, 'yyyy-MM-dd HH:mm')}"></td>
+				<td th:text="${#temporals.format(result.endDt, 'yyyy-MM-dd HH:mm')}"></td>
 				<td th:text="${result.viewCnt}"></td>
 				<td th:text="${result.regId}"></td>
-				<td th:text="${#dates.format(result.regDt, 'yyyy-MM-dd')}"></td>
+				<td th:text="${#temporals.format(result.regDt, 'yyyy-MM-dd')}"></td>
 			</tr>
 		</th:block>
 		<th:block th:unless="${not #lists.isEmpty(resultList.content)}">

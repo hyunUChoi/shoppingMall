@@ -7,7 +7,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,9 +19,10 @@ public class CommonVO implements Serializable {
 
     // 등록자, 등록일, 수정자, 수정일, 삭제여부, 첨부파일
     private String regId;
-    private Date regDt;
+    private String regNm;
+    private LocalDateTime regDt;
     private String modId;
-    private Date modDt;
+    private LocalDateTime modDt;
     private String delYn;
     private String atchFileId;
 
@@ -44,9 +46,9 @@ public class CommonVO implements Serializable {
     private String searchKeyword;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date searchStrtDt;
+    private LocalDate searchStrtDt;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date searchEndDt;
+    private LocalDate searchEndDt;
 
     // 구분
     private String procType;

@@ -11,18 +11,19 @@
 		};
     });
 </script>
-<h4 class="fw-bold py-3 mb-4">사용자관리</h4>
+<h4 class="fw-bold py-3 mb-4">공지사항</h4>
 <div class="row">
 	<div class="col-xl">
 		<div class="card mb-4">
 			<div class="card-header d-flex justify-content-between align-items-center">
-				<h5 class="mb-0">사용자정보</h5>
+				<h5 class="mb-0">공지사항 상세</h5>
 			</div>
 			<div class="card-body">
-				<form id="defaultFrm" th:object="${maBannerVO}" method="post" onsubmit="return false;">
+				<form id="defaultFrm" th:object="${maBoardVO}" method="post" onsubmit="return false;">
 					<input type="hidden" th:field="*{seq}">
+					<input type="hidden" th:field="*{brdDivn}">
 					<input type="hidden" th:field="*{atchFileId}">
-					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maBannerVO})"></th:block>
+					<th:block th:replace="common/fragments/searchInfo :: searchInfo(${maBoardVO})"></th:block>
 					<div class="row">
 						<div class="mb-3 col-md-6">
 							<label class="form-label" for="regId">등록자</label>
@@ -32,25 +33,21 @@
 							<label class="form-label" for="regDt">등록일</label>
 							<input type="text" class="form-control-plaintext" id="regDt" th:value="*{#temporals.format(regDt, 'yyyy-MM-dd HH:mm')}" readonly/>
 						</div>
-						<div class="mb-3">
-							<label for="title" class="form-label">프로모션명</label>
-							<input class="form-control-plaintext" id="title" th:value="*{title}" readonly>
+						<div class="mb-3 col-md-6">
+							<label class="form-label" for="notiStrtDt">공지 시작일</label>
+							<input type="text" class="form-control-plaintext" id="notiStrtDt" th:field="*{notiStrtDt}" readonly/>
+						</div>
+						<div class="mb-3 col-md-6">
+							<label class="form-label" for="notiEndDt">공지 종료일</label>
+							<input type="text" class="form-control-plaintext" id="notiEndDt" th:field="*{notiEndDt}" readonly/>
 						</div>
 						<div class="mb-3">
-							<label class="form-label" for="URL">URL</label>
-							<input type="text" class="form-control-plaintext" id="URL" th:field="*{url}" readonly/>
+							<label class="form-label" for="title">제목</label>
+							<input type="text" class="form-control-plaintext" id="title" th:field="*{title}" readonly/>
 						</div>
-						<div class="mb-3 col-md-4">
-							<label class="form-label" for="strtDt">시작일</label>
-							<input type="text" class="form-control-plaintext" id="strtDt" th:field="*{strtDt}" readonly/>
-						</div>
-						<div class="mb-3 col-md-4">
-							<label class="form-label" for="endDt">종료일</label>
-							<input type="text" class="form-control-plaintext" id="endDt" th:field="*{endDt}" readonly/>
-						</div>
-						<div class="mb-3 col-md-4">
-							<label class="form-label" for="ord">순서</label>
-							<input type="text" class="form-control-plaintext" id="ord" th:field="*{ord}" readonly/>
+						<div class="mb-3">
+							<label class="form-label" for="cont">내용</label>
+							<textarea class="form-control-plaintext" id="cont" th:field="*{cont}" readonly></textarea>
 						</div>
 						<div id="file"></div>
 					</div>

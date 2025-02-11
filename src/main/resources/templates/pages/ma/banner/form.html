@@ -34,7 +34,7 @@
 			if(procType === 'insert') {
 				fnProcessing('post', 'insertProc', this);
 			} else {
-				fnProcessing('put', 'updateProc', this);
+				fnProcessing('patch', 'updateProc', this);
 			}
 		};
     });
@@ -93,7 +93,7 @@
 						</th:block>
 						<th:block th:if="${maBannerVO.procType eq 'update'}">
 							<button type="button" class="btn btn-outline-primary" id="btn_submit">수정</button>
-							<button type="button" class="btn btn-outline-secondary" th:onclick="fnPageCall('view', 'view', 'seq', [[${maBannerVO.seq}]])">취소</button>
+							<button type="button" class="btn btn-outline-secondary" th:onclick="|fnPageCall('view', 'view', 'seq', ${maBannerVO.seq})|">취소</button>
 						</th:block>
 					</div>
 				</form>

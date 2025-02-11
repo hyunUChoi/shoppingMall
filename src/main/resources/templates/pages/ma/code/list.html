@@ -31,7 +31,7 @@
             document.querySelectorAll('[id^="error_"]').forEach(ele => ele.innerText = "");
 
             if(overlap) {
-                let method = this.innerText === '등록' ? 'post' : 'put';
+                let method = this.innerText === '등록' ? 'post' : 'patch';
                 let url = this.innerText === '등록' ? 'insertProc' : 'updateProc';
 
                 document.getElementById(btn).classList.add('display_none');

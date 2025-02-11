@@ -41,7 +41,7 @@ function fnFileDelete(atchFileId) {
                 atchFileId: atchFileId
             }
         })
-        .then(function(response){
+        .then(function(){
             document.getElementById("atchFileId").value = '';
             fnPageCall('file', '/file/form');
         })
