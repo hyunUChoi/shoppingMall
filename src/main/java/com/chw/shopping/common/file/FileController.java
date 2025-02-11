@@ -33,8 +33,47 @@ public class FileController {
 
     private final FileService fileService;
 
-    @RequestMapping(value = "form")
-    public String form(@ModelAttribute("searchVO") CommonVO searchVO, Model model) throws Exception {
+    @RequestMapping(value = "singleFile")
+    public String singleFile(@ModelAttribute("searchVO") CommonVO searchVO, Model model) throws Exception {
+        FileVO fileVO = new FileVO();
+        fileVO.setAtchFileId(searchVO.getAtchFileId());
+        model.addAttribute("fileInfo", fileService.selectContents(fileVO));
+        return "pages/common/file/singleFile";
+    }
+
+    @RequestMapping(value = "multiFile")
+    public String multiFile(@ModelAttribute("searchVO") CommonVO searchVO, Model model) throws Exception {
+        FileVO fileVO = new FileVO();
+        fileVO.setAtchFileId(searchVO.getAtchFileId());
+        model.addAttribute("fileList", fileService.selectList(fileVO));
+        return "pages/common/file/multiFile";
+    }
+
+    @RequestMapping(value = "singleImg")
+    public String singleImg(@ModelAttribute("searchVO") CommonVO searchVO, Model model) throws Exception {
+        FileVO fileVO = new FileVO();
+        fileVO.setAtchFileId(searchVO.getAtchFileId());
+        FileVO fileInfo = fileService.selectContents(fileVO);
+
+        String thumbnail = "";
+        if(fileInfo != null) {
+            String filePath = fileInfo.getFileSavePath() + fileInfo.getSaveFileNm();
+            Path path = Paths.get(filePath);
+
+            if (fileInfo.getFileType().startsWith("image/")) {
+                byte[] fileBytes = Files.readAllBytes(path);
+                String base64Image = Base64.getEncoder().encodeToString(fileBytes);
+                thumbnail = "data:" + fileInfo.getFileType() + ";base64," + base64Image;
+            }
+        }
+
+        model.addAttribute("fileInfo", fileInfo);
+        model.addAttribute("thumbnail", thumbnail);
+        return "pages/common/file/singleImg";
+    }
+
+    @RequestMapping(value = "multiImg")
+    public String multiImg(@ModelAttribute("searchVO") CommonVO searchVO, Model model) throws Exception {
         FileVO fileVO = new FileVO();
         fileVO.setAtchFileId(searchVO.getAtchFileId());
         List<FileVO> fileList = fileService.selectList(fileVO);
@@ -50,39 +89,40 @@ public class FileController {
                 thumbnailList.add("data:" + vo.getFileType() + ";base64," + base64Image);
             }
         }
-
         model.addAttribute("fileList", fileList);
         model.addAttribute("thumbnailList", thumbnailList);
-        return "pages/common/fileUpload";
+        return "pages/common/file/multiImg";
     }
 
     @ResponseBody
     @RequestMapping(value = "upload")
-    public String upload(@RequestParam MultipartFile file) throws Exception {
+    public String upload(@RequestParam MultipartFile[] files) throws Exception {
         String atchFileId = "FILE"+ UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
-        String saveFileNm = atchFileId + "_" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String folderPath = now.getYear() + File.separator + now.getMonthValue()  + File.separator + now.getDayOfMonth() + File.separator;
-
         String path = "C:" + File.separator + "shopping" + File.separator + "attach" + File.separator + "upload" + File.separator;
-        String filepath = path + folderPath + saveFileNm;
-        File saveFolder = new File(filepath);
 
-        if(!saveFolder.exists() || saveFolder.isFile()) {
-            saveFolder.mkdirs();
+        for (int i = 0; i < files.length; i++) {
+            MultipartFile file = files[i];
+            String saveFileNm = atchFileId + "_" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "_" + i;
+            String filepath = path + folderPath + saveFileNm;
+            File saveFolder = new File(filepath);
+
+            if(!saveFolder.exists() || saveFolder.isFile()) {
+                saveFolder.mkdirs();
+            }
+            file.transferTo(saveFolder);
+
+            FileVO fileVO = new FileVO();
+            fileVO.setAtchFileId(atchFileId);
+            fileVO.setSaveFileNm(saveFileNm);
+            fileVO.setOrgFileNm(file.getOriginalFilename());
+            fileVO.setFileSavePath(path + folderPath);
+            fileVO.setFileType(file.getContentType());
+            fileVO.setFileSize(file.getSize());
+            fileVO.setFileOrd(i);
+            fileService.insertContents(fileVO);
         }
-        file.transferTo(saveFolder);
-
-        FileVO fileVO = new FileVO();
-        fileVO.setAtchFileId(atchFileId);
-        fileVO.setSaveFileNm(saveFileNm);
-        fileVO.setOrgFileNm(file.getOriginalFilename());
-        fileVO.setFileSavePath(path + folderPath);
-        fileVO.setFileType(file.getContentType());
-        fileVO.setFileSize(file.getSize());
-        fileVO.setFileOrd(0);
-        fileService.insertContents(fileVO);
-
         return atchFileId;
     }
 
@@ -121,9 +161,10 @@ public class FileController {
     @ResponseBody
     @DeleteMapping("delete")
     public int delete(@ModelAttribute("searchVO") FileVO searchVO) throws Exception {
-        FileVO fileVO = fileService.selectContents(searchVO);
-        File file = new File(fileVO.getFileSavePath(), fileVO.getSaveFileNm());
-        file.delete();
+        // 물리파일 제거
+        //FileVO fileVO = fileService.selectContents(searchVO);
+        //File file = new File(fileVO.getFileSavePath(), fileVO.getSaveFileNm());
+        //file.delete();
         fileService.deleteContents(searchVO);
         return fileService.selectCount(searchVO);
     }

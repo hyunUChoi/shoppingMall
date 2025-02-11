@@ -2,7 +2,7 @@
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
-		fnPageCall('file', '/file/form');
+		fnPageCall('file', '/file/multiFile');
 
 		document.getElementById('btn_del').onclick = function() {
 			if(confirm("삭제하시겠습니까?")) {

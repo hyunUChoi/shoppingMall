@@ -1,22 +1,30 @@
 // 파일 하나당 최대 용량 10MB
 const LIMIT_BYTE = 10485760;
 
-function fnSingleFileUpload(files, type) {
-    let valid = fnTypeValidation(files, type);
+function fnFileUpload(files, type) {
+    let valid = true;
 
-    if(files[0].size > LIMIT_BYTE) {
-        alert("[" + files[0].name + "]은(는) 허용용량을 초과하여 첨부가 불가능합니다. 파일은 최대 10MB까지 첨부 가능합니다.");
-        document.getElementById("atchFileForm").value = '';
-        return false;
+    for(let i = 0; i < files.length; i++) {
+        if(files[i].size > LIMIT_BYTE) {
+            alert("[" + files[i].name + "]은(는) 허용용량을 초과하여 첨부가 불가능합니다. 파일은 최대 10MB까지 첨부 가능합니다.");
+            document.getElementById("atchFileForm").value = '';
+            valid = false;
+            break;
+        }
 
-    } else if(!valid) {
-        alert("첨부할 수 없는 확장자입니다.");
-        document.getElementById("atchFileForm").value = '';
-        return false;
+        if(!fnTypeValidation(files[i], type)) {
+            alert("첨부할 수 없는 확장자입니다.");
+            document.getElementById("atchFileForm").value = '';
+            valid = false;
+            break;
+        }
+    }
 
-    } else {
+    if(valid) {
         let formData = new FormData();
-        formData.append("file", files[0]);
+        for(let i = 0; i < files.length; i++) {
+            formData.append("files", files[i]);
+        }
 
         axios.post('/file/upload', formData, {
             headers: {
@@ -25,7 +33,7 @@ function fnSingleFileUpload(files, type) {
         })
         .then(function(response) {
             document.getElementById('atchFileId').value = response.data;
-            fnPageCall('file', '/file/form');
+            fnPageCall('file', returnForm(type));
         })
         .catch(function(error) {
             console.log(error);
@@ -34,16 +42,18 @@ function fnSingleFileUpload(files, type) {
 }
 
 // noinspection JSUnusedGlobalSymbols
-function fnFileDelete(atchFileId) {
+function fnFileDelete(atchFileId, type) {
     if(confirm('삭제하시겠습니까?')) {
         axios.delete('/file/delete', {
             params: {
                 atchFileId: atchFileId
             }
         })
-        .then(function(){
-            document.getElementById("atchFileId").value = '';
-            fnPageCall('file', '/file/form');
+        .then(function(response){
+            if(response.data === 0) {
+                document.getElementById("atchFileId").value = '';
+            }
+            fnPageCall('file', returnForm(type));
         })
         .catch(function(error) {
             console.log(error);
@@ -54,10 +64,37 @@ function fnFileDelete(atchFileId) {
 }
 
 function fnTypeValidation(files, type) {
-    if(type === 'image') {
+    let divn = type.toLowerCase();
+
+    if(divn.indexOf('image') > -1) {
         let reg = /jpg|jpeg|png|gif/i;
-        return reg.test(files[0].type.split('/')[1]);
+        return reg.test(files.type.split('/')[1]);
+
+    } else if(divn.indexOf('file') > -1) {
+        let reg = /gif|jpg|jpeg|png|doc|docx|gul|hwp|hwt|pdf|ppt|pptx|xls|xlsx|xlsm|csv/i;
+        return reg.test(files.type.split('/')[1]);
     }
 
     return true;
+}
+
+function returnForm(type) {
+    let returnUrl;
+
+    switch (type){
+        case 'singleImage' :
+            returnUrl = '/file/singleImg';
+            break;
+        case 'singleFile' :
+            returnUrl = '/file/singleFile';
+            break;
+        case 'multiImage' :
+            returnUrl = '/file/multiImg';
+            break;
+        case 'multiFile' :
+            returnUrl = '/file/multiFile';
+            break;
+    }
+
+    return returnUrl;
 }

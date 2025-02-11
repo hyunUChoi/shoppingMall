@@ -21,7 +21,8 @@
         /* FileDAO.selectCount */
         SELECT count(1)
         FROM T_ATCH_FILE
-        WHERE DEL_YN = 'N'
+        WHERE ATCH_FILE_ID = #{atchFileId}
+        AND DEL_YN = 'N'
     </select>
 
     <select id="selectContents" parameterType="fileVO" resultType="fileVO">

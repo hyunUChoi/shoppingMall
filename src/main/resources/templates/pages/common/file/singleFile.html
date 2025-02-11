@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org">
+<div class="mb-3">
+    <label for="atchFileForm" class="form-label">첨부파일</label>
+    <!-- view -->
+    <th:block th:if="${#strings.contains(session.requestURI, 'view')}">
+        <div class="form-control-plaintext" th:if="${!#strings.isEmpty(fileInfo)}">
+            <i class="bx bx-download"></i>&nbsp;<a href="javascript:void(0);" th:text="*{fileInfo.orgFileNm}" th:href="@{/file/download(saveFileNm=${fileInfo.saveFileNm}, fileStorePath=${fileInfo.fileSavePath}, originalFileNm=${fileInfo.orgFileNm})}" target="_self"></a>
+        </div>
+        <th:block th:unless="${!#strings.isEmpty(fileInfo)}">
+            <span class="form-control-plaintext">첨부된 파일이 없습니다.</span>
+        </th:block>
+    </th:block>
+    <!-- /view -->
+
+    <!-- insert, update -->
+    <th:block th:unless="${#strings.contains(session.requestURI, 'view')}">
+        &ensp;<button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('atchFileForm').click();"><i class="bx bx-upload"></i>&nbsp;파일업로드</button>
+        <input type="file" id="atchFileForm" onchange="fnFileUpload(this.files, 'singleFile');" style="display: none;"/>
+        <div class="form-control-plaintext mt-2" th:if="${!#strings.isEmpty(fileInfo)}">
+            <i class="bx bx-download"></i>&nbsp;<a th:text="*{fileInfo.orgFileNm}" th:href="@{/file/download(saveFileNm=${fileInfo.saveFileNm}, fileStorePath=${fileInfo.fileSavePath}, originalFileNm=${fileInfo.orgFileNm})}" target="_self"></a>
+            &emsp;<i class="bx bx-message-square-x" style="color: red; cursor: pointer;" th:onclick="fnFileDelete([[*{fileInfo.atchFileId}]], 'singleFile')"></i>
+        </div>
+        <th:block th:unless="${!#strings.isEmpty(fileInfo)}">
+            <span class="form-control-plaintext">하나의 파일만 등록 가능합니다.</span>
+        </th:block>
+    </th:block>
+    <!-- /insert, update -->
+</div>
+</html>

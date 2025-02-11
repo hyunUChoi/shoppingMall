@@ -4,14 +4,6 @@
     <label for="atchFileForm" class="form-label">첨부파일</label>
     <!-- view -->
     <th:block th:if="${#strings.contains(session.requestURI, 'view')}">
-        <div class="form-control-plaintext mt-2" th:if="${!#lists.isEmpty(thumbnailList)}">
-            <!-- 썸네일 -->
-            <th:block th:if="${!#lists.isEmpty(thumbnailList)}">
-                <th:block th:each="thumbnai, status : ${thumbnailList}">
-                    <img th:src="*{thumbnai}" alt="" style="height: 200px; width: 200px; object-fit: cover;">
-                </th:block>
-            </th:block>
-        </div>
         <div class="form-control-plaintext" th:if="${!#lists.isEmpty(fileList)}">
             <th:block th:each="file, status : ${fileList}">
                 <i class="bx bx-download"></i>&nbsp;<a href="javascript:void(0);" th:text="*{file.orgFileNm}" th:href="@{/file/download(saveFileNm=${file.getSaveFileNm()}, fileStorePath=${file.getFileSavePath()}, originalFileNm=${file.getOrgFileNm()})}" target="_self"></a>
@@ -27,20 +19,12 @@
     <!-- insert, update -->
     <th:block th:unless="${#strings.contains(session.requestURI, 'view')}">
         &ensp;<button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('atchFileForm').click();"><i class="bx bx-upload"></i>&nbsp;파일업로드</button>
-        <input type="file" id="atchFileForm" onchange="fnSingleFileUpload(this.files, 'image');" style="display: none;"/>
-        <div class="form-control-plaintext mt-2" th:if="${!#lists.isEmpty(thumbnailList)}">
-            <!-- 썸네일 -->
-            <th:block th:if="${!#lists.isEmpty(thumbnailList)}">
-                <th:block th:each="thumbnai, status : ${thumbnailList}">
-                    <img th:src="*{thumbnai}" alt="" style="height: 200px; width: 200px; object-fit: cover;">
-                </th:block>
-            </th:block>
-        </div>
+        <input type="file" id="atchFileForm" onchange="fnFileUpload(this.files, 'multiFile');" style="display: none;" multiple/>
         <div class="form-control-plaintext mt-2" th:if="${!#lists.isEmpty(fileList)}">
             <!-- 파일 -->
             <th:block th:each="file, status : ${fileList}">
                 <i class="bx bx-download"></i>&nbsp;<a th:text="*{file.getOrgFileNm()}" th:href="@{/file/download(saveFileNm=${file.getSaveFileNm()}, fileStorePath=${file.getFileSavePath()}, originalFileNm=${file.getOrgFileNm()})}" target="_self"></a>
-                &emsp;<i class="bx bx-message-square-x" style="color: red; cursor: pointer;" th:onclick="fnFileDelete([[${file.getAtchFileId()}]])"></i>
+                &emsp;<i class="bx bx-message-square-x" style="color: red; cursor: pointer;" th:onclick="fnFileDelete([[${file.getAtchFileId()}]], 'multiFile')"></i>
                 <th:block th:if="${!status.last}"><br></th:block>
             </th:block>
         </div>
