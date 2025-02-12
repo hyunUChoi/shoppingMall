@@ -69,6 +69,13 @@ public class MaUserServiceImpl implements MaUserService, UserDetailsService {
         maUserDAO.passwordUpdateContents(vo);
     }
 
+    @Override
+    public void changePassword(MaUserVO vo) {
+        String encodePassword = passwordEncoder.encode(vo.getUserPw());
+        vo.setUserPw(encodePassword);
+        maUserDAO.changePassword(vo);
+    }
+
     @Transactional
     @Override
     public void deleteContents(MaUserVO vo) throws Exception {
@@ -77,10 +84,14 @@ public class MaUserServiceImpl implements MaUserService, UserDetailsService {
 
     @Transactional
     @Override
+    public MaUserVO selectByUserId(String username) {
+        return maUserDAO.selectByUserId(username);
+    }
+
+    @Transactional
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        MaUserVO maUserVO = new MaUserVO();
-        maUserVO.setUserId(username);
-        maUserVO = maUserDAO.selectByUserId(maUserVO);
+        MaUserVO maUserVO = maUserDAO.selectByUserId(username);
 
         if (maUserVO == null) {
             throw new UsernameNotFoundException(username);

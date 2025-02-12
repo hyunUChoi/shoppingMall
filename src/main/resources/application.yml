@@ -31,6 +31,22 @@ spring:
       max-request-size: 50MB
       enabled: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: chw64233@gmail.com
+    password: chso topx bgmg utkv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+logging:
+  config: classpath:logback-spring.xml
+
 ##mybatis:
   ##oracle:
     ##configuration:
@@ -41,6 +57,3 @@ spring:
     ##configuration:
       ##map-underscore-to-camel-case: true
       ##jdbc-type-for-null: NULL
-
-logging:
-  config: classpath:logback-spring.xml

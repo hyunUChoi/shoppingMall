@@ -151,6 +151,16 @@
         AND DEL_YN = 'N'
     </update>
 
+    <update id="changePassword" parameterType="maUserVO">
+        /* MaUserDAO.changePassword */
+        UPDATE T_USER
+        SET MOD_ID = #{userId}
+          , MOD_DT = SYSDATE
+          , USER_PW = #{userPw}
+        WHERE USER_ID = #{userId}
+        AND DEL_YN = 'N'
+    </update>
+
     <delete id="deleteContents" parameterType="maUserVO">
         /* MaUserDAO.deleteContents */
         UPDATE T_USER
@@ -161,10 +171,11 @@
         AND DEL_YN = 'N'
     </delete>
 
-    <select id="selectByUserId" parameterType="maUserVO" resultType="maUserVO">
+    <select id="selectByUserId" parameterType="String" resultType="maUserVO">
         /* MaUserDAO.selectByUserId */
         SELECT USER_ID
              , USER_PW
+             , USER_EMAIL
              , AUTH
         FROM T_USER
         WHERE USER_ID = #{userId}

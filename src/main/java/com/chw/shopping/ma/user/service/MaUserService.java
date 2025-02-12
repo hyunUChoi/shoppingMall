@@ -17,5 +17,9 @@ public interface MaUserService {
 
     void passwordUpdateContents(MaUserVO vo) throws Exception;
 
+    void changePassword(MaUserVO vo) throws Exception;
+
     void deleteContents(MaUserVO vo) throws Exception;
+
+    MaUserVO selectByUserId(String username) throws Exception;
 }

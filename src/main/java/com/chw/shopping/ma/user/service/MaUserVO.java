@@ -17,6 +17,7 @@ public class MaUserVO extends CommonVO implements Serializable {
 
     public interface insert{}
     public interface update{}
+    public interface changePassword{}
 
     private static final long serialVersionUID = 1L;
 
@@ -26,8 +27,8 @@ public class MaUserVO extends CommonVO implements Serializable {
     @Pattern(groups = {insert.class, update.class}, regexp = "^[a-zA-Z0-9]*$", message = "영어 대/소문자, 숫자만 가능합니다.")
     private String userId;  // 아이디
 
-    @NotBlank(groups = {insert.class}, message = "비밀번호를 입력해주세요.")
-    @Pattern(groups = {insert.class}, regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[~!@#$%^&*()+|=])[a-zA-Z0-9~!@#$%^&*()+|=]+$", message = "영문 소문자, 숫자, 특수문자를 사용하세요.")
+    @NotBlank(groups = {insert.class, changePassword.class}, message = "비밀번호를 입력해주세요.")
+    @Pattern(groups = {insert.class, changePassword.class}, regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[~!@#$%^&*()+|=])[a-zA-Z0-9~!@#$%^&*()+|=]+$", message = "영문 소문자, 숫자, 특수문자를 사용하세요.")
     private String userPw;  // 비밀번호
 
     private String userDi;  // DI

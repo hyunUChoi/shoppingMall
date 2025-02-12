@@ -22,7 +22,9 @@ public interface MaUserDAO {
 
     void passwordUpdateContents(MaUserVO vo);
 
+    void changePassword(MaUserVO vo);
+
     void deleteContents(MaUserVO vo);
 
-    MaUserVO selectByUserId(MaUserVO vo);
+    MaUserVO selectByUserId(String username);
 }

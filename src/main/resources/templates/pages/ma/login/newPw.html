@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" class="light-style customizer-hide" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
-<!-- Page CSS -->
-<link rel="stylesheet" href="/assets/vendor/css/pages/page-auth.css" />
 <script th:inline="javascript">
-	function fnLogin() {
-		let id = document.getElementById("username");
-		let pw = document.getElementById("password");
+	document.addEventListener('DOMContentLoaded', () => {
+		document.getElementById('btn_next').onclick = function() {
+			let pw = document.getElementById('userPw').value;
+			let pwCheck = document.getElementById('pwCheck').value;
 
-		if(!id.value || !pw.value) {
-			alert("아이디와 비밀번호를 확인해주세요.");
-			return false;
+			if(pw !== pwCheck) {
+				document.getElementById('error_pwCheck').innerText = "비밀번호가 일치하지 않습니다.";
+				return false;
+			}
+			fnProcessing('patch', 'changePassword', this);
 		}
-	}
+	})
 </script>
 <div class="container-xxl">
 	<div class="authentication-wrapper authentication-basic container-p-y">
@@ -21,7 +22,7 @@
 				<div class="card-body">
 					<!-- Logo -->
 					<div class="app-brand justify-content-center">
-						<a href="#" class="app-brand-link gap-2">
+						<a th:href="@{/ma/login/login}" class="app-brand-link gap-2">
 							<span class="app-brand-logo demo">
 								<svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 									<defs>
@@ -59,53 +60,29 @@
 						</a>
 					</div>
 					<!-- /Logo -->
-					<h4 class="mb-2">
-						<th:block th:if="${#strings.contains(#request.requestURI, '/ma/')}">
-							1.단 담아봐 관리자 로그인입니다.
-						</th:block>
-						<th:block th:unless="${#strings.contains(#request.requestURI, '/ma/')}">
-							1.단 담기 위해 로그인을 해주세요!
-						</th:block>
-					</h4>
+					<p style="text-align: center;">새로운 비밀번호를 입력해주세요.</p>
 					<br>
-					<form th:action="${#strings.contains(#request.requestURI, '/ma/') ? '/ma/login' : '/ft/login'}" method="post">
-						<div class="mb-3">
-							<label class="form-label" for="username">아이디</label>
-							<input th:type="text" class="form-control" id="username" name="username" autofocus/>
-						</div>
+					<form id="defaultFrm" th:object="${searchVO}" method="post">
+						<input type="hidden" th:field="*{userId}">
 						<div class="mb-3 form-password-toggle">
-							<div class="d-flex justify-content-between">
-								<label class="form-label" for="password">비밀번호</label>
-								<a href="#"><small>비밀번호를 잊으셨나요?</small>
-								</a>
-							</div>
+							<label class="form-label">새로운 비밀번호</label>
 							<div class="input-group input-group-merge">
-								<input th:type="password" class="form-control" id="password" name="password"/>
+								<input type="password" class="form-control" th:field="*{userPw}" title="비밀번호" autofocus/>
 								<span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
 							</div>
+							<div id="error_userPw" class="error_message"></div>
+						</div>
+						<div class="mb-3 form-password-toggle">
+							<label class="form-label">비밀번호 확인</label>
+							<div class="input-group input-group-merge">
+								<input type="password" class="form-control" id="pwCheck" title="비밀번호 확인"/>
+								<span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+							</div>
+							<div id="error_pwCheck" class="error_message"></div>
 						</div>
 						<div class="mb-3">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="remember-me" />
-								<label class="form-check-label" for="remember-me"> Remember Me </label>
-							</div>
+							<button type="button" class="btn btn-primary d-grid w-100" id="btn_next">비밀번호 변경</button>
 						</div>
-						<div class="card shadow-none bg-transparent border border-danger mb-3" th:if="${param.error}">
-							<div class="card-body">
-								<p class="card-text text-danger">
-									아이디와 비밀번호를 확인해주세요.
-								</p>
-							</div>
-						</div>
-						<div class="mb-3">
-							<button type="submit" class="btn btn-primary d-grid w-100" onclick="fnLogin();">Sign in</button>
-						</div>
-						<th:block th:if="${#strings.contains(#request.requestURI, '/ft/')}">
-							<p class="text-center">
-								<span>아이디가 없으신가요?</span>
-								<a th:href="@{/ft/signup/signup.do}"><span>회원가입</span></a>
-							</p>
-						</th:block>
 					</form>
 				</div>
 			</div>
