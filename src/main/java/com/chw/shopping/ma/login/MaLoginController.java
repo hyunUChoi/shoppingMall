@@ -26,7 +26,7 @@ public class MaLoginController {
 
     @RequestMapping(value = "login")
     public String login(@ModelAttribute("searchVO") MaUserVO searchVO) {
-        return "pages/ma/login/login";
+        return "pages/common/login/login";
     }
 
     @RequestMapping(value = "checkId")
@@ -34,7 +34,7 @@ public class MaLoginController {
         if(error != null) {
             model.addAttribute("error", error);
         }
-        return "pages/ma/login/checkId";
+        return "pages/common/login/checkId";
     }
 
     @RequestMapping(value = "verify")
@@ -46,7 +46,7 @@ public class MaLoginController {
             return "redirect:/ma/login/checkId";
         } else {
             model.addAttribute("maUserVO", maUserVO);
-            return "pages/ma/login/verify";
+            return "pages/common/login/verify";
         }
     }
 
@@ -79,7 +79,7 @@ public class MaLoginController {
             redirectAttributes.addFlashAttribute("error", "비정상적인 접근입니다.");
             return "redirect:/ma/login/checkId";
         }
-        return "pages/ma/login/newPw";
+        return "pages/common/login/newPw";
     }
 
     @ResponseBody

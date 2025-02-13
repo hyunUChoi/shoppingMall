@@ -2,27 +2,64 @@
 <html lang="en" class="light-style customizer-hide" dir="ltr" data-theme="theme-default" data-assets-path="/assets/" data-template="vertical-menu-template-free" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{common/layout/layout}" layout:fragment="content">
 <script th:inline="javascript">
 	document.addEventListener('DOMContentLoaded', () => {
-		document.getElementById('btn_next').onclick = function() {
-			let pw = document.getElementById('userPw').value;
-			let pwCheck = document.getElementById('pwCheck').value;
+		// 이메일 마스킹
+		let email = document.getElementById('userEmail').value;
+		let [local, domain] = email.split("@");
+		let maskedLocal = local.length > 2 ? local[0] + "*".repeat(local.length - 2) + local[local.length - 1] : "*".repeat(local.length);
+		document.getElementById('maskingEmail').innerText = maskedLocal + '@' + domain;
 
-			if(pw !== pwCheck) {
-				document.getElementById('error_pwCheck').innerText = "비밀번호가 일치하지 않습니다.";
-				return false;
+		let code = '';
+		// 인증번호 발송
+		document.getElementById('btn_verity').onclick = function() {
+			const btn = this;
+			const loading = document.getElementById('btn_loading');
+
+			btn.classList.add('display_none');
+			loading.classList.remove('display_none');
+
+			axios.get('sendCode', {
+				params: {
+					userEmail: document.getElementById('userEmail').value
+				}
+			})
+			.then(function(response) {
+				alert("메일이 발송되었습니다.");
+				code = response.data.certNum
+			})
+			.catch(function(error) {
+				if(error.response && error.response.status === 422) {
+					alert("메일발송에 실패하였습니다.")
+				} else {
+					console.log(error);
+				}
+			})
+			.finally(function() {
+				btn.classList.remove('display_none');
+				loading.classList.add('display_none');
+			});
+		}
+
+		document.getElementById('btn_next').onclick = function() {
+			let verifyNum = document.getElementById('verifyNum').value;
+
+			if(verifyNum === code) {
+				fnPageCall('list', 'newPw');
+			} else {
+				alert("인증번호가 일치하지 않습니다. 인증번호를 다시 확인해주세요.");
 			}
-			fnProcessing('patch', 'changePassword', this);
+
 		}
 	})
 </script>
 <div class="container-xxl">
 	<div class="authentication-wrapper authentication-basic container-p-y">
-		<div class="authentication-inner">
+		<div class="authentication-inner" style="max-width: 500px !important;">
 			<!-- Register -->
 			<div class="card">
 				<div class="card-body">
 					<!-- Logo -->
 					<div class="app-brand justify-content-center">
-						<a th:href="@{/ma/login/login}" class="app-brand-link gap-2">
+						<a th:href="${'/' + #strings.setSplit(#request.requestURI, '/')[0] + '/login/login'}" class="app-brand-link gap-2">
 							<span class="app-brand-logo demo">
 								<svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 									<defs>
@@ -60,28 +97,24 @@
 						</a>
 					</div>
 					<!-- /Logo -->
-					<p style="text-align: center;">새로운 비밀번호를 입력해주세요.</p>
+					<p style="text-align: center;">회원가입 시 등록한 이메일로 인증번호가 발송되었습니다.</p>
+					<p style="text-align: center;">회원가입 이메일 : <span id="maskingEmail"></span>
+						<button type="button" class="btn btn-sm btn-primary" id="btn_verity">인증번호 발송</button>
+						<button class="btn btn-sm btn-primary display_none" id="btn_loading" type="button" disabled>
+							<span class="spinner-border me-1 spinner-border-sm" role="status" aria-hidden="true"></span>
+							메일 발송 중
+						</button>
+					</p>
 					<br>
-					<form id="defaultFrm" th:object="${searchVO}" method="post">
+					<form id="defaultFrm" th:object="${maUserVO}" method="post">
 						<input type="hidden" th:field="*{userId}">
-						<div class="mb-3 form-password-toggle">
-							<label class="form-label">새로운 비밀번호</label>
-							<div class="input-group input-group-merge">
-								<input type="password" class="form-control" th:field="*{userPw}" title="비밀번호" autofocus/>
-								<span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
-							</div>
-							<div id="error_userPw" class="error_message"></div>
-						</div>
-						<div class="mb-3 form-password-toggle">
-							<label class="form-label">비밀번호 확인</label>
-							<div class="input-group input-group-merge">
-								<input type="password" class="form-control" id="pwCheck" title="비밀번호 확인"/>
-								<span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
-							</div>
-							<div id="error_pwCheck" class="error_message"></div>
+						<input type="hidden" th:field="*{userEmail}">
+						<div class="mb-3">
+							<label class="form-label">인증번호</label>
+							<input type="text" class="form-control" id="verifyNum" title="인증번호" autofocus/>
 						</div>
 						<div class="mb-3">
-							<button type="button" class="btn btn-primary d-grid w-100" id="btn_next">비밀번호 변경</button>
+							<button type="button" class="btn btn-primary d-grid w-100" id="btn_next">다음</button>
 						</div>
 					</form>
 				</div>
